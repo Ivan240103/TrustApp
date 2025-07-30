@@ -1,14 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	tools:context=".fragments.DashboardFragment">
 
-	<!-- TODO: Update blank fragment layout -->
 	<TextView
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:text="Dashboard" />
+		android:id="@+id/current_humidity_title"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Current humidity (not in real time!)"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent" />
 
-</FrameLayout>
+	<TextView
+		android:id="@+id/current_humidity_data"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="0%"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/current_humidity_title" />
+
+	<TextView
+		android:id="@+id/list_humidity_subtitle"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginBottom="1dp"
+		android:text="Last 10 retrieved data"
+		app:layout_constraintBottom_toTopOf="@+id/list_humidity"
+		app:layout_constraintStart_toStartOf="parent" />
+
+<!--	aggiungere un grafico con i dati-->
+
+	<Button
+		android:id="@+id/add_mock_button"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="32dp"
+		android:text="Add mock data"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/current_humidity_data" />
+
+	<ListView
+		android:id="@+id/list_humidity"
+		android:layout_width="409dp"
+		android:layout_height="192dp"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
