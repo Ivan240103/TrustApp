@@ -8,7 +8,10 @@ class MeasureRepository(private val measureDao: MeasureDao) {
 		measureDao.insertMeasure(Measure(0, loc, Math.random() * 100))
 	}
 
-	fun getAllMeasures(): LiveData<List<Measure>> {
-		return measureDao.getAllMeasures()
-	}
+	fun getAllMeasures(): LiveData<List<Measure>> = measureDao.getAllMeasures()
+
+	fun getLastMeasure(): LiveData<Measure> = measureDao.getLastMeasure()
+
+	fun getLastTenMeasures(): LiveData<List<Measure>> = measureDao.getLastTenMeasures()
+
 }

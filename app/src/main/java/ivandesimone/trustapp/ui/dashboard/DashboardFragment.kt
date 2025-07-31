@@ -1,11 +1,13 @@
-package ivandesimone.trustapp.fragments
+package ivandesimone.trustapp.ui.dashboard
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.ArrayAdapter
+import android.widget.ListView
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import ivandesimone.trustapp.R
@@ -28,17 +30,28 @@ class DashboardFragment : Fragment() {
 		super.onViewCreated(view, savedInstanceState)
 		measuresViewModel = ViewModelProvider(requireActivity())[MeasuresViewModel::class.java]
 
-		measuresViewModel.allMeasures.observe(viewLifecycleOwner) {
-			val currentHumidityData = view.findViewById<TextView>(R.id.current_humidity_data)
-			// TODO error when list is empty ???
-			if (it.isNotEmpty()) {
-				currentHumidityData.text = "${it.last().location} - ${it.last().humidity.roundToInt()} %"
-			}
-		}
+		initCurrentHumidity(view)
+		initMeasureList(view)
+	}
 
-		val addMockButton: Button = view.findViewById(R.id.add_mock_button)
-		addMockButton.setOnClickListener {
-			measuresViewModel.addMockData("Zola Predosa")
+	private fun initCurrentHumidity(view: View) {
+		val currentHumidityData: TextView = view.findViewById(R.id.current_humidity_data)
+		measuresViewModel.lastMeasure.observe(viewLifecycleOwner) {
+			currentHumidityData.text = "${it.location} - ${it.humidity.roundToInt()} %"
 		}
 	}
+
+	private fun initMeasureList(view: View) {
+		val listHumidity: ListView = view.findViewById(R.id.list_humidity)
+		val adapter = MeasureSimpleAdapter(
+			requireContext(),
+			measuresViewModel.lastTenMeasures.value?.toMutableList() ?: mutableListOf()
+		)
+		listHumidity.adapter = adapter
+
+		measuresViewModel.lastTenMeasures.observe(viewLifecycleOwner) { newMeasures ->
+			adapter.updateMeasures(newMeasures)
+		}
+	}
+
 }

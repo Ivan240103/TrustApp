@@ -11,6 +11,8 @@ import kotlinx.coroutines.withContext
 class MeasuresViewModel(private val repo: MeasureRepository): ViewModel() {
 
 	val allMeasures = repo.getAllMeasures()
+	val lastMeasure = repo.getLastMeasure()
+	val lastTenMeasures = repo.getLastTenMeasures()
 
 	fun addMockData(location: String) {
 		viewModelScope.launch {
