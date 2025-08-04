@@ -3,6 +3,7 @@ package ivandesimone.trustapp.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import ivandesimone.trustapp.db.Measure
 import ivandesimone.trustapp.db.MeasureRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -14,12 +15,12 @@ class MeasuresViewModel(private val repo: MeasureRepository): ViewModel() {
 	val lastMeasure = repo.getLastMeasure()
 	val lastTenMeasures = repo.getLastTenMeasures()
 
+	suspend fun getMeasureById(id: Int): Measure {
+		return repo.getMeasureById(id)
+	}
+
 	fun addMockData(location: String) {
-		viewModelScope.launch {
-			withContext(Dispatchers.IO) {
-				repo.addMockData(location)
-			}
-		}
+		repo.addMockData(location)
 	}
 }
 

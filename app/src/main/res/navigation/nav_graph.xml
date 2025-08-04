@@ -9,7 +9,11 @@
 		android:id="@+id/dashboardFragment"
 		android:name="ivandesimone.trustapp.ui.dashboard.DashboardFragment"
 		android:label="Dashboard"
-		tools:layout="@layout/fragment_dashboard" />
+		tools:layout="@layout/fragment_dashboard" >
+		<action
+			android:id="@+id/action_dashboardFragment_to_listFragment"
+			app:destination="@id/listFragment" />
+	</fragment>
 	<fragment
 		android:id="@+id/requestFragment"
 		android:name="ivandesimone.trustapp.ui.request.RequestFragment"
@@ -20,4 +24,18 @@
 		android:name="ivandesimone.trustapp.ui.profile.ProfileFragment"
 		android:label="Personal area"
 		tools:layout="@layout/fragment_profile" />
+	<fragment
+		android:id="@+id/listFragment"
+		android:name="ivandesimone.trustapp.ui.list.ListFragment"
+		android:label="fragment_list"
+		tools:layout="@layout/fragment_list" >
+		<action
+			android:id="@+id/action_listFragment_to_detailsFragment"
+			app:destination="@id/detailsFragment" />
+	</fragment>
+	<fragment
+		android:id="@+id/detailsFragment"
+		android:name="ivandesimone.trustapp.ui.details.DetailsFragment"
+		android:label="fragment_details"
+		tools:layout="@layout/fragment_details" />
 </navigation>

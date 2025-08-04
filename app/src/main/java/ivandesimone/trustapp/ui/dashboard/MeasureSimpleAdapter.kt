@@ -12,41 +12,29 @@ import kotlin.math.roundToInt
 
 class MeasureSimpleAdapter(
 	private val context: Context,
-	private val measures: MutableList<Measure>
+	private var measures: List<Measure>
 ) : BaseAdapter() {
-
-	private data class MeasureSimpleViewHolder (
-		val rowLocation: TextView,
-		val rowHumidity: TextView
-	)
-
-	private val inflater = LayoutInflater.from(context)
 
 	override fun getCount(): Int = measures.size
 
 	override fun getItem(p0: Int): Any = measures[p0]
 
-	override fun getItemId(p0: Int): Long = p0.toLong()
+	override fun getItemId(p0: Int): Long = measures[p0].id.toLong()
 
 	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-		val v: View = convertView ?: inflater.inflate(R.layout.row_simple_measure, parent, false)
-		val holder = MeasureSimpleViewHolder(
-			rowLocation = v.findViewById(R.id.row_location),
-			rowHumidity = v.findViewById(R.id.row_humidity)
-		)
+		val v: View = convertView ?:
+			LayoutInflater.from(context).inflate(R.layout.row_simple_measure, parent, false)
 
-		val measure = measures[position]
-		holder.apply {
-			rowLocation.text = measure.location
-			rowHumidity.text = measure.humidity.roundToInt().toString() + " %"
-		}
+		val rowLocation: TextView = v.findViewById(R.id.row_location)
+		rowLocation.text = measures[position].location
+		val rowHumidity: TextView = v.findViewById(R.id.row_humidity)
+		rowHumidity.text = measures[position].humidity.roundToInt().toString() + " %"
 
 		return v
 	}
 
 	fun updateMeasures(newMeasures: List<Measure>) {
-		measures.clear()
-		measures.addAll(newMeasures)
+		measures = newMeasures
 		notifyDataSetChanged()
 	}
 }
