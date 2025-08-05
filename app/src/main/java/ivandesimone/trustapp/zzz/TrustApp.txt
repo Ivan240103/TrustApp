@@ -1,0 +1,12 @@
+Un'applicazione per visualizzare dati di monitroaggio ambientale o strutturale (eventi critici di ponti).
+In questo caso andremo ad utilizzare dati di aziende vinicole, in particolare un dato di umidità del terreno.
+
+I dati vengono richiesti alla chain, ed una volta ricevuti sono salvati e mostrati nell'app.
+Mostrare un selettore di chain per effettuare la richiesta, magari in base al costo delle transazioni.
+Gli SC sono uguali su più chain (eth sepolia, bsc e polygon), ideale avere un wallet con più account.
+Dall'app connessione allo sc, chiamare la funzione di submit request passando la query da eseguire,
+poi recuperare i dati ricevuti, salvare i dati ricevuti nel db e poi visualizzarli opportunamente.
+il ledger è il db dello smart contract
+
+Si potrebbe aggiungere un task in background che monitora i dati che arrivano sullo smart contract,
+eventualmente richiesti da altri utenti per monitorare con una notifica ???
