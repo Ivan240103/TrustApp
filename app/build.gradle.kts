@@ -18,6 +18,13 @@ android {
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 	}
 
+	packaging {
+		resources {
+			// keep the first copy of the file that causes build error
+			pickFirsts += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
+		}
+	}
+
 	buildTypes {
 		release {
 			isMinifyEnabled = false
@@ -51,6 +58,9 @@ dependencies {
 	implementation(libs.converter.gson)
 	ksp(libs.room.compiler)
 	implementation(libs.androidx.recyclerview)
+	implementation("com.walletconnect:android-core:1.35.2")
+	implementation("com.walletconnect:sign:2.35.2")
+	implementation("com.walletconnect:web3modal:1.6.6") // For dApp integration
 	testImplementation(libs.junit)
 	androidTestImplementation(libs.androidx.junit)
 	androidTestImplementation(libs.androidx.espresso.core)

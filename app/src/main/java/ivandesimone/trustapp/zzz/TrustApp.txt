@@ -51,7 +51,6 @@ Fee non è rilevante, tanto viene sempre èrelevata la quantità minima
 *     }
 *   }
 * }
-* }
 *
 * Query 2
 * {
