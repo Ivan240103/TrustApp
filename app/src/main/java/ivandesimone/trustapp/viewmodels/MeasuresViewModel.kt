@@ -2,12 +2,8 @@ package ivandesimone.trustapp.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import ivandesimone.trustapp.db.Measure
 import ivandesimone.trustapp.db.MeasureRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MeasuresViewModel(private val repo: MeasureRepository): ViewModel() {
 
@@ -19,11 +15,16 @@ class MeasuresViewModel(private val repo: MeasureRepository): ViewModel() {
 		return repo.getMeasureById(id)
 	}
 
-	fun addMockData(location: String) {
-		repo.addMockData(location)
+	fun requestMockMeasures(coord: String, location: String, radius: Int, count: Byte) {
+		repo.requestMockMeasures(coord, location, radius, count)
+	}
+
+	fun deleteMeasure(measure: Measure) {
+		repo.deleteMeasure(measure)
 	}
 }
 
+@Suppress("UNCHECKED_CAST")
 class MeasuresViewModelFactory(private val repo: MeasureRepository) : ViewModelProvider.Factory {
 	override fun <T : ViewModel> create(modelClass: Class<T>): T {
 		return MeasuresViewModel(repo) as T

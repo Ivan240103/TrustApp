@@ -1,33 +1,173 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:orientation="vertical"
+	android:fillViewport="true"
 	tools:context=".ui.request.RequestFragment">
 
-	<TextView
-		android:id="@+id/request_info_text"
-		android:layout_width="wrap_content"
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_gravity="center"
-		android:layout_marginTop="32dp"
-		android:text="Request data from ZONIA" />
+		android:layout_margin="16dp">
 
-	<Button
-		android:id="@+id/connect_wallet_button"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center"
-		android:layout_marginTop="16dp"
-		android:text="Connect MetaMask wallet" />
+		<TextView
+			android:id="@+id/request_info_text"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Select your area of interest"
+			android:textSize="20sp"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
 
-	<Button
-		android:id="@+id/send_request_button"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center"
-		android:layout_marginTop="16dp"
-		android:text="Request data" />
+		<!--	TODO: add map-->
+		<ImageView
+			android:id="@+id/map_placeholder"
+			android:layout_width="match_parent"
+			android:layout_height="200dp"
+			android:layout_marginTop="32dp"
+			android:src="@drawable/ic_launcher_background"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/request_info_text" />
 
-</LinearLayout>
+		<TextView
+			android:id="@+id/lat_label"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="24dp"
+			android:text="Latitude"
+			app:layout_constraintStart_toStartOf="@id/lat_edittext"
+			app:layout_constraintTop_toBottomOf="@id/map_placeholder" />
+
+		<EditText
+			android:id="@+id/lat_edittext"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="8dp"
+			android:hint="44°29'18''"
+			android:inputType="text"
+			app:layout_constraintEnd_toStartOf="@id/long_edittext"
+			app:layout_constraintHorizontal_chainStyle="spread"
+			app:layout_constraintHorizontal_weight="1"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/lat_label" />
+
+		<TextView
+			android:id="@+id/long_label"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="24dp"
+			android:text="Longitude"
+			app:layout_constraintStart_toStartOf="@id/long_edittext"
+			app:layout_constraintTop_toBottomOf="@id/map_placeholder" />
+
+		<EditText
+			android:id="@+id/long_edittext"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="8dp"
+			android:hint="11°13'05''"
+			android:inputType="text"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintHorizontal_chainStyle="spread"
+			app:layout_constraintHorizontal_weight="1"
+			app:layout_constraintStart_toEndOf="@id/lat_edittext"
+			app:layout_constraintTop_toBottomOf="@+id/long_label" />
+
+		<TextView
+			android:id="@+id/location_label"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="24dp"
+			android:text="Location name"
+			app:layout_constraintStart_toStartOf="@id/location_edittext"
+			app:layout_constraintTop_toBottomOf="@id/lat_edittext" />
+
+		<EditText
+			android:id="@+id/location_edittext"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:hint="Zola Predosa"
+			android:inputType="text"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/location_label" />
+
+		<TextView
+			android:id="@+id/radius_label"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="24dp"
+			android:text="Area's radius (in meters)"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/location_edittext" />
+
+		<EditText
+			android:id="@+id/radius_edittext"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:hint="500"
+			android:inputType="number"
+			android:text="500"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/radius_label" />
+
+		<TextView
+			android:id="@+id/count_label"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="24dp"
+			android:text="Number of measurement desired:"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/radius_edittext" />
+
+		<EditText
+			android:id="@+id/count_edittext"
+			android:layout_width="70dp"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:hint="1"
+			android:inputType="number"
+			android:text="1"
+			android:textAlignment="center"
+			app:layout_constraintBottom_toBottomOf="@id/count_label"
+			app:layout_constraintStart_toEndOf="@id/count_label"
+			app:layout_constraintTop_toTopOf="@id/count_label" />
+
+		<Button
+			android:id="@+id/connect_wallet_button"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="24dp"
+			android:backgroundTint="#FF5722"
+			android:text="Connect MetaMask wallet"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/count_edittext" />
+
+		<Button
+			android:id="@+id/request_zonia_button"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="16dp"
+			android:text="Request data from ZONIA"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/connect_wallet_button" />
+
+		<Button
+			android:id="@+id/request_mock_button"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="16dp"
+			android:text="Request mock data"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/request_zonia_button" />
+
+	</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
