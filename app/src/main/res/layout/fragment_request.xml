@@ -21,13 +21,13 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent" />
 
-		<!--	TODO: add map-->
-		<ImageView
-			android:id="@+id/map_placeholder"
+		<androidx.fragment.app.FragmentContainerView
+			android:id="@+id/request_map_fragment"
+			android:name="com.google.android.gms.maps.SupportMapFragment"
 			android:layout_width="match_parent"
 			android:layout_height="200dp"
 			android:layout_marginTop="32dp"
-			android:src="@drawable/ic_launcher_background"
+			app:layout_constraintDimensionRatio="1:1"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@id/request_info_text" />
@@ -39,14 +39,14 @@
 			android:layout_marginTop="24dp"
 			android:text="Latitude"
 			app:layout_constraintStart_toStartOf="@id/lat_edittext"
-			app:layout_constraintTop_toBottomOf="@id/map_placeholder" />
+			app:layout_constraintTop_toBottomOf="@id/request_map_fragment" />
 
 		<EditText
 			android:id="@+id/lat_edittext"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_marginEnd="8dp"
-			android:hint="44°29'18''"
+			android:hint="44.496781"
 			android:inputType="text"
 			app:layout_constraintEnd_toStartOf="@id/long_edittext"
 			app:layout_constraintHorizontal_chainStyle="spread"
@@ -61,14 +61,14 @@
 			android:layout_marginTop="24dp"
 			android:text="Longitude"
 			app:layout_constraintStart_toStartOf="@id/long_edittext"
-			app:layout_constraintTop_toBottomOf="@id/map_placeholder" />
+			app:layout_constraintTop_toBottomOf="@id/request_map_fragment" />
 
 		<EditText
 			android:id="@+id/long_edittext"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="8dp"
-			android:hint="11°13'05''"
+			android:hint="11.356387"
 			android:inputType="text"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintHorizontal_chainStyle="spread"
@@ -89,7 +89,7 @@
 			android:id="@+id/location_edittext"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:hint="Zola Predosa"
+			android:hint="Bologna"
 			android:inputType="text"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"

@@ -1,51 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	tools:context=".ui.details.DetailsFragment">
 
-	<TextView
-		android:id="@+id/details_location"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="16dp"
-		android:text="Location"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
 
-	<TextView
-		android:id="@+id/details_timestamp"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="24dp"
-		android:text="24-01-2003T21:15"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/details_location" />
+		<TextView
+			android:id="@+id/details_location"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="16dp"
+			android:text="Location"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
 
-	<ImageView
-		android:id="@+id/details_icon"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="32dp"
-		android:src="@drawable/ic_water_drop"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/details_timestamp" />
+		<TextView
+			android:id="@+id/details_timestamp"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="24dp"
+			android:text="24-01-2003T21:15"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/details_location" />
 
-	<TextView
-		android:id="@+id/details_humidity"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="32dp"
-		android:text="undefined %"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/details_icon" />
+		<ImageView
+			android:id="@+id/details_icon"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="32dp"
+			android:src="@drawable/ic_water_drop"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/details_timestamp" />
 
-<!--	mappa che indica dove il dato è stato rilevato?-->
+		<TextView
+			android:id="@+id/details_humidity"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="16dp"
+			android:text="undefined %"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/details_icon" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+		<androidx.fragment.app.FragmentContainerView
+			android:id="@+id/details_map_fragment"
+			android:name="com.google.android.gms.maps.SupportMapFragment"
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_margin="32dp"
+			app:layout_constraintDimensionRatio="1:1"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/details_humidity" />
+
+		<Button
+			android:id="@+id/delete_measure_button"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="32dp"
+			android:layout_marginEnd="32dp"
+			android:layout_marginTop="32dp"
+			android:layout_marginBottom="16dp"
+			android:backgroundTint="#FF0000"
+			android:text="Delete measure"
+			app:layout_constraintTop_toBottomOf="@id/details_map_fragment"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintBottom_toBottomOf="parent"/>
+
+	</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

@@ -8,7 +8,7 @@ import java.util.Date
 data class Measure(
 	@PrimaryKey(autoGenerate = true)
 	val id: Int,
-	// coordinates formatted "[lat, long]"
+	// coordinates formatted "lat:long"
 	val coord: String,
 	val location: String,
 	val radius: Int,

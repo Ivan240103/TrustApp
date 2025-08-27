@@ -61,23 +61,7 @@ class RequestFragment : Fragment() {
 		}
 
 		requestZoniaButton.setOnClickListener {
-			// Define the query JSON as a raw string literal
-			val queryString = """
-			{
-				"topic": "s4agri:AmbientHumidity",
-				"geo": {
-					"type": "Feature",
-					"geometry": {
-						"type": "Point",
-						"coordinates": [44.4948, 11.3426]
-					},
-					"properties": {
-						"radius": 500
-					}
-				}
-			}
-			""".trimIndent()
-			ethVM.sendTransaction(queryString)
+			requestZoniaMeasures()
 		}
 
 		requestMockButton.setOnClickListener {
@@ -85,10 +69,30 @@ class RequestFragment : Fragment() {
 		}
 	}
 
+	private fun requestZoniaMeasures() {
+		// define the query JSON as a raw string literal
+		val queryString = """
+			{
+				"topic": "s4agri:AmbientHumidity",
+				"geo": {
+					"type": "Feature",
+					"geometry": {
+						"type": "Point",
+						"coordinates": [${latEditText.text}, ${longEditText.text}]
+					},
+					"properties": {
+						"radius": ${radiusEditText.text}
+					}
+				}
+			}
+			""".trimIndent()
+		ethVM.sendTransaction(queryString)
+	}
+
 	private fun requestMockMeasures() {
 		try {
 			measuresViewModel.requestMockMeasures(
-				"[${latEditText.text}, ${longEditText.text}]",
+				"${latEditText.text}:${longEditText.text}",
 				locationEditText.text.toString(), // TODO: substitute with geocoding
 				radiusEditText.text.toString().toInt(),
 				countEditText.text.toString().toByte()
