@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -70,8 +71,15 @@ class DetailsFragment : Fragment(), OnMapReadyCallback {
 
 		deleteMeasureButton = view.findViewById(R.id.delete_measure_button)
 		deleteMeasureButton.setOnClickListener {
-			measuresViewModel.deleteMeasure(detailedMeasure)
-			parentFragmentManager.popBackStack()
+			val alert = AlertDialog.Builder(requireContext())
+				.setTitle("Delete measure")
+				.setMessage("Are you sure you want to delete this measure? If you change your mind you will have to request it again...")
+				.setCancelable(true)
+				.setPositiveButton("YES") { _, _ -> deleteMeasure() }
+				.setNegativeButton("NO") { dialog, _ -> dialog.cancel() }
+				.create()
+
+			alert.show()
 		}
 	}
 
@@ -127,6 +135,11 @@ class DetailsFragment : Fragment(), OnMapReadyCallback {
 					.fillColor(resources.getColor(R.color.blue_transparent, null))
 			)
 		}
+	}
+
+	private fun deleteMeasure() {
+		measuresViewModel.deleteMeasure(detailedMeasure)
+		parentFragmentManager.popBackStack()
 	}
 
 }

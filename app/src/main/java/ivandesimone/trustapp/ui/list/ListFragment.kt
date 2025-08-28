@@ -16,7 +16,6 @@ import ivandesimone.trustapp.ui.details.DetailsFragment
 import ivandesimone.trustapp.viewmodels.MeasuresViewModel
 
 // TODO: add filters on displayed list
-// TODO: add swipe to delete?
 class ListFragment : Fragment() {
 
 	private lateinit var measuresViewModel: MeasuresViewModel
