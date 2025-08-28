@@ -1,5 +1,6 @@
 package ivandesimone.trustapp.ui.dashboard
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,10 +14,18 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import com.github.mikephil.charting.charts.ScatterChart
+import com.github.mikephil.charting.components.AxisBase
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.ScatterData
+import com.github.mikephil.charting.data.ScatterDataSet
+import com.github.mikephil.charting.formatter.ValueFormatter
 import ivandesimone.trustapp.R
 import ivandesimone.trustapp.ui.details.DetailsFragment
 import ivandesimone.trustapp.viewmodels.MeasuresViewModel
 import java.text.DateFormat
+import java.util.Date
 
 class DashboardFragment : Fragment() {
 
@@ -36,6 +45,7 @@ class DashboardFragment : Fragment() {
 		navController = findNavController()
 
 		initLastHumidity(view)
+		initScatterChart(view)
 		initMeasureList(view)
 	}
 
@@ -61,6 +71,62 @@ class DashboardFragment : Fragment() {
 				lastHumidityIcon.layoutParams = params
 			}
 		}
+	}
+
+	private fun initScatterChart(view: View) {
+		val chart: ScatterChart = view.findViewById(R.id.scatter_chart)
+
+		measuresViewModel.allMeasures.observe(viewLifecycleOwner) { newMeasures ->
+			val dataSets = mutableListOf<ScatterDataSet>()
+			val grouped = newMeasures.groupBy { it.location }
+			var colorIndex = 0
+
+			for((location, measuresAtLocation) in grouped) {
+				val entries = measuresAtLocation.map { measure ->
+					Entry(measure.timestamp.time.toFloat(), measure.humidity)
+				}
+				val dataSet = ScatterDataSet(entries, location)
+				dataSet.apply {
+					color = generateColor(colorIndex)
+					setScatterShape(ScatterChart.ScatterShape.CIRCLE)
+					scatterShapeSize = 10f
+				}
+				dataSets.add(dataSet)
+				colorIndex++
+			}
+
+			val scatterData = ScatterData(dataSets as List<ScatterDataSet>?)
+			chart.data = scatterData
+
+			val formatter = DateFormat.getDateInstance(DateFormat.SHORT)
+			chart.apply {
+				xAxis.valueFormatter = object: ValueFormatter() {
+					override fun getAxisLabel(value: Float, axis: AxisBase?): String {
+						return formatter.format(Date(value.toLong()))
+					}
+				}
+
+				axisLeft.axisMinimum = 0f
+				axisLeft.axisMaximum = 100f
+				axisRight.isEnabled = false
+
+				legend.apply {
+					verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+					horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+					orientation = Legend.LegendOrientation.HORIZONTAL
+					isWordWrapEnabled = true
+				}
+
+				description.isEnabled = false
+				invalidate()
+			}
+		}
+	}
+
+	private fun generateColor(index: Int): Int {
+		// Generate distinct colors in HSV space
+		val hue = (index * 40f) % 360 // rotate hue for each location
+		return Color.HSVToColor(floatArrayOf(hue, 0.8f, 0.9f))
 	}
 
 	private fun initMeasureList(view: View) {

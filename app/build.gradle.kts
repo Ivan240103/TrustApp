@@ -62,6 +62,7 @@ dependencies {
 	implementation("com.walletconnect:sign:2.35.2")
 	implementation("com.walletconnect:web3modal:1.6.6") // For dApp integration
 	implementation(libs.play.services.maps)
+	implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 	testImplementation(libs.junit)
 	androidTestImplementation(libs.androidx.junit)
 	androidTestImplementation(libs.androidx.espresso.core)

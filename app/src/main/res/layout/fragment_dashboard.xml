@@ -62,14 +62,20 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@id/last_humidity_icon" />
 
-		<!-- TODO: add graphs	-->
 		<androidx.cardview.widget.CardView
-			android:id="@+id/card_line_graph"
+			android:id="@+id/card_line_chart"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:layout_marginTop="16dp"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@id/last_humidity_value">
+
+			<com.github.mikephil.charting.charts.ScatterChart
+				android:id="@+id/scatter_chart"
+				android:layout_width="match_parent"
+				android:layout_height="300dp"
+				android:layout_margin="16dp" />
 
 		</androidx.cardview.widget.CardView>
 
@@ -78,13 +84,14 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="16dp"
+			android:layout_marginBottom="16dp"
 			android:clickable="true"
 			android:descendantFocusability="blocksDescendants"
 			android:focusable="true"
 			android:foreground="?attr/selectableItemBackground"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/card_line_graph">
+			app:layout_constraintTop_toBottomOf="@id/card_line_chart">
 
 			<LinearLayout
 				android:layout_width="match_parent"
