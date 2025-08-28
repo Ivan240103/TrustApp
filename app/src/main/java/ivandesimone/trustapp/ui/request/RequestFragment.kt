@@ -1,8 +1,10 @@
 package ivandesimone.trustapp.ui.request
 
 import android.content.Intent
+import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,14 +13,23 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import ivandesimone.trustapp.R
 import ivandesimone.trustapp.viewmodels.EthViewModel
 import ivandesimone.trustapp.viewmodels.MeasuresViewModel
 
-class RequestFragment : Fragment() {
+class RequestFragment : Fragment(), OnMapReadyCallback {
 
 	private lateinit var ethVM: EthViewModel
 	private lateinit var measuresViewModel: MeasuresViewModel
+	private lateinit var geocoder: Geocoder
+
 	private lateinit var connectWalletButton: Button
 	private lateinit var requestZoniaButton: Button
 	private lateinit var requestMockButton: Button
@@ -27,6 +38,7 @@ class RequestFragment : Fragment() {
 	private lateinit var locationEditText: EditText
 	private lateinit var radiusEditText: EditText
 	private lateinit var countEditText: EditText
+	private var marker: Marker? = null
 
 	override fun onCreateView(
 		inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -40,6 +52,12 @@ class RequestFragment : Fragment() {
 
 		ethVM = ViewModelProvider(this)[EthViewModel::class.java]
 		measuresViewModel = ViewModelProvider(requireActivity())[MeasuresViewModel::class.java]
+
+		val mapFragment =
+			childFragmentManager.findFragmentById(R.id.request_map_fragment) as SupportMapFragment
+		mapFragment.getMapAsync(this)
+
+		geocoder = Geocoder(requireContext())
 
 		connectWalletButton = view.findViewById(R.id.connect_wallet_button)
 		requestZoniaButton = view.findViewById(R.id.request_zonia_button)
@@ -69,6 +87,25 @@ class RequestFragment : Fragment() {
 		}
 	}
 
+	override fun onMapReady(p0: GoogleMap) {
+		p0.mapType = GoogleMap.MAP_TYPE_HYBRID
+		val position = LatLng(44.4896263748,11.3389703108)
+		p0.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 8f))
+		marker = p0.addMarker(MarkerOptions().position(position))
+		p0.setOnMapClickListener { pos ->
+			marker?.let {
+				it.position = pos
+			} ?: {
+				marker = p0.addMarker(MarkerOptions().position(pos))
+			}
+			latEditText.text = Editable.Factory().newEditable(pos.latitude.toString())
+			longEditText.text = Editable.Factory().newEditable(pos.longitude.toString())
+			val locationResult = geocoder.getFromLocation(pos.latitude, pos.longitude, 1)
+			locationEditText.text =
+				Editable.Factory().newEditable(locationResult?.get(0)?.locality ?: "Unknown")
+		}
+	}
+
 	private fun requestZoniaMeasures() {
 		// define the query JSON as a raw string literal
 		val queryString = """
@@ -93,7 +130,7 @@ class RequestFragment : Fragment() {
 		try {
 			measuresViewModel.requestMockMeasures(
 				"${latEditText.text}:${longEditText.text}",
-				locationEditText.text.toString(), // TODO: substitute with geocoding
+				locationEditText.text.toString(),
 				radiusEditText.text.toString().toInt(),
 				countEditText.text.toString().toByte()
 			)
