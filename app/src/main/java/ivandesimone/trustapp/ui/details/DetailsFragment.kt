@@ -22,6 +22,7 @@ import ivandesimone.trustapp.R
 import ivandesimone.trustapp.db.Measure
 import ivandesimone.trustapp.viewmodels.MeasuresViewModel
 import kotlinx.coroutines.launch
+import java.math.RoundingMode
 
 class DetailsFragment : Fragment(), OnMapReadyCallback {
 
@@ -106,12 +107,23 @@ class DetailsFragment : Fragment(), OnMapReadyCallback {
 			val coord = detailedMeasure.coord.split(':').map { it.toDouble() }
 			val position = LatLng(coord[0], coord[1])
 			detailsMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 13f))
-			detailsMap.addMarker(MarkerOptions().position(position))
-			detailsMap.addCircle(CircleOptions()
-				.center(position)
-				.radius(detailedMeasure.radius.toDouble())
-				.strokeColor(resources.getColor(R.color.blue, null))
-				.fillColor(resources.getColor(R.color.blue_transparent, null))
+			detailsMap.addMarker(
+				MarkerOptions()
+					.position(position)
+					.title(
+						"${
+							coord[0].toBigDecimal().setScale(6, RoundingMode.HALF_EVEN)
+						},  ${
+							coord[1].toBigDecimal().setScale(6, RoundingMode.HALF_EVEN)
+						}, r = ${detailedMeasure.radius}m"
+					)
+			)
+			detailsMap.addCircle(
+				CircleOptions()
+					.center(position)
+					.radius(detailedMeasure.radius.toDouble())
+					.strokeColor(resources.getColor(R.color.blue, null))
+					.fillColor(resources.getColor(R.color.blue_transparent, null))
 			)
 		}
 	}
