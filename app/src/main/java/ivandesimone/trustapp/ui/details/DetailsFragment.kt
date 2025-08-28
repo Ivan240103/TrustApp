@@ -1,13 +1,13 @@
 package ivandesimone.trustapp.ui.details
 
 import android.os.Bundle
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -23,6 +23,7 @@ import ivandesimone.trustapp.db.Measure
 import ivandesimone.trustapp.viewmodels.MeasuresViewModel
 import kotlinx.coroutines.launch
 import java.math.RoundingMode
+import java.text.DateFormat
 
 class DetailsFragment : Fragment(), OnMapReadyCallback {
 
@@ -62,6 +63,9 @@ class DetailsFragment : Fragment(), OnMapReadyCallback {
 				initDetails(view)
 				addMarker()
 			}
+		} ?: {
+			Toast.makeText(requireActivity(), "Details retrieval failed", Toast.LENGTH_SHORT).show()
+			parentFragmentManager.popBackStack()
 		}
 
 		deleteMeasureButton = view.findViewById(R.id.delete_measure_button)
@@ -84,18 +88,15 @@ class DetailsFragment : Fragment(), OnMapReadyCallback {
 		val detailsTimestamp: TextView = view.findViewById(R.id.details_timestamp)
 		val detailsHumidity: TextView = view.findViewById(R.id.details_humidity)
 		val detailsIcon: ImageView = view.findViewById(R.id.details_icon)
+		val formatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
 
 		detailsLocation.text = detailedMeasure.location
-		detailsTimestamp.text = detailedMeasure.timestamp.toString()
+		detailsTimestamp.text = formatter.format(detailedMeasure.timestamp)
 		detailsHumidity.text = "${detailedMeasure.humidity} %"
 
-		// base size in pixels
-		val baseSize = TypedValue.applyDimension(
-			TypedValue.COMPLEX_UNIT_DIP, detailsIcon.width.toFloat(), resources.displayMetrics
-		)
-		// linear interpolation to scale image
-		val scale = 1f + (detailedMeasure.humidity - 1) / 99f * 0.75f
-		val newSize = (baseSize * scale).toInt()
+		// linear interpolation to scale image from 1x to 2.4x
+		val scale = 1f + (detailedMeasure.humidity - 1) / 99f * 1.4f
+		val newSize = (120 * scale).toInt()
 		val params = detailsIcon.layoutParams
 		params.width = newSize
 		params.height = newSize

@@ -12,13 +12,13 @@ interface MeasureDao {
 	@Insert(onConflict = OnConflictStrategy.IGNORE)
 	fun insertMultipleMeasures(measures: List<Measure>)
 
-	@Query("SELECT * FROM Measure")
+	@Query("SELECT * FROM Measure ORDER BY timestamp DESC")
 	fun getAllMeasures(): LiveData<List<Measure>>
 
-	@Query("SELECT * FROM Measure ORDER BY id DESC LIMIT 1")
+	@Query("SELECT * FROM Measure ORDER BY timestamp DESC LIMIT 1")
 	fun getLastMeasure(): LiveData<Measure>
 
-	@Query("SELECT * FROM Measure ORDER BY id DESC LIMIT 10")
+	@Query("SELECT * FROM Measure ORDER BY timestamp DESC LIMIT 10")
 	fun getLastTenMeasures(): LiveData<List<Measure>>
 
 	@Query("SELECT * FROM Measure WHERE id = :id")

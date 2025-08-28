@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
@@ -15,7 +16,7 @@ import androidx.navigation.fragment.findNavController
 import ivandesimone.trustapp.R
 import ivandesimone.trustapp.ui.details.DetailsFragment
 import ivandesimone.trustapp.viewmodels.MeasuresViewModel
-import kotlin.math.roundToInt
+import java.text.DateFormat
 
 class DashboardFragment : Fragment() {
 
@@ -26,7 +27,6 @@ class DashboardFragment : Fragment() {
 		inflater: LayoutInflater, container: ViewGroup?,
 		savedInstanceState: Bundle?
 	): View? {
-		// Inflate the layout for this fragment
 		return inflater.inflate(R.layout.fragment_dashboard, container, false)
 	}
 
@@ -35,15 +35,31 @@ class DashboardFragment : Fragment() {
 		measuresViewModel = ViewModelProvider(requireActivity())[MeasuresViewModel::class.java]
 		navController = findNavController()
 
-		// TODO: nullPointerException when empty
-		initCurrentHumidity(view)
+		initLastHumidity(view)
 		initMeasureList(view)
 	}
 
-	private fun initCurrentHumidity(view: View) {
-		val currentHumidityData: TextView = view.findViewById(R.id.current_humidity_data)
-		measuresViewModel.lastMeasure.observe(viewLifecycleOwner) {
-			currentHumidityData.text = "${it.location} - ${it.humidity.roundToInt()} %"
+	private fun initLastHumidity(view: View) {
+		val lastHumidityLocation: TextView = view.findViewById(R.id.last_humidity_location)
+		val lastHumidityTimestamp: TextView = view.findViewById(R.id.last_humidity_timestamp)
+		val lastHumidityIcon: ImageView = view.findViewById(R.id.last_humidity_icon)
+		val lastHumidityValue: TextView = view.findViewById(R.id.last_humidity_value)
+		val formatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
+
+		measuresViewModel.lastMeasure.observe(viewLifecycleOwner) { measure ->
+			measure?.let {
+				lastHumidityLocation.text = it.location
+				lastHumidityTimestamp.text = formatter.format(it.timestamp)
+				lastHumidityValue.text = "${it.humidity} %"
+
+				// linear interpolation to scale image from 1x to 2.4x
+				val scale = 1f + (it.humidity - 1) / 99f * 1.4f
+				val newSize = (120 * scale).toInt()
+				val params = lastHumidityIcon.layoutParams
+				params.width = newSize
+				params.height = newSize
+				lastHumidityIcon.layoutParams = params
+			}
 		}
 	}
 
@@ -60,11 +76,12 @@ class DashboardFragment : Fragment() {
 		)
 		listHumidity.adapter = adapter
 		listHumidity.setOnItemClickListener { _, _, i, _ ->
-			val measureId = measuresViewModel.lastTenMeasures.value?.get(i)?.id
-			navController.navigate(
-				R.id.action_dashboardFragment_to_listFragment,
-				bundleOf(DetailsFragment.DETAILS_ID to measureId)
-			)
+			measuresViewModel.lastTenMeasures.value?.get(i)?.let {
+				navController.navigate(
+					R.id.action_dashboardFragment_to_detailsFragment,
+					bundleOf(DetailsFragment.DETAILS_ID to it.id)
+				)
+			}
 		}
 
 		measuresViewModel.lastTenMeasures.observe(viewLifecycleOwner) { newMeasures ->

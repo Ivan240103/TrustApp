@@ -1,15 +1,12 @@
 package ivandesimone.trustapp.ui.list
 
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,8 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import ivandesimone.trustapp.R
 import ivandesimone.trustapp.ui.details.DetailsFragment
 import ivandesimone.trustapp.viewmodels.MeasuresViewModel
-import kotlinx.coroutines.launch
 
+// TODO: add filters on displayed list
+// TODO: add swipe to delete?
 class ListFragment : Fragment() {
 
 	private lateinit var measuresViewModel: MeasuresViewModel
@@ -28,7 +26,6 @@ class ListFragment : Fragment() {
 		inflater: LayoutInflater, container: ViewGroup?,
 		savedInstanceState: Bundle?
 	): View? {
-		// Inflate the layout for this fragment
 		return inflater.inflate(R.layout.fragment_list, container, false)
 	}
 
@@ -37,13 +34,6 @@ class ListFragment : Fragment() {
 
 		measuresViewModel = ViewModelProvider(requireActivity())[MeasuresViewModel::class.java]
 		navController = findNavController()
-
-		// immediate navigation if the user wants to see details
-		arguments?.getInt(DetailsFragment.DETAILS_ID)?.let { id ->
-			navigateToDetails(id)
-			// WHEN COMING BACK FROM DETAILS IT AUTOMATICALLY RE-NAVIGATE WITH ID = 0 ---> ERROR !!!
-			arguments?.remove(DetailsFragment.DETAILS_ID)
-		}
 
 		initRecyclerView(view)
 	}

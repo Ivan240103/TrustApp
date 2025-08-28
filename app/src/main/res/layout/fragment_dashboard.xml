@@ -1,61 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	tools:context=".ui.dashboard.DashboardFragment">
 
-	<TextView
-		android:id="@+id/current_humidity_title"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:text="Current humidity (not in real time!)"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
-
-	<TextView
-		android:id="@+id/current_humidity_data"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:text="undefined"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/current_humidity_title" />
-
-	<!--	aggiungere un grafico con i dati-->
-
-	<androidx.cardview.widget.CardView
-		android:id="@+id/card_list_humidity"
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:clickable="true"
-		android:descendantFocusability="blocksDescendants"
-		android:focusable="true"
-		android:foreground="?attr/selectableItemBackground"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent">
+		android:layout_margin="16dp">
 
-		<LinearLayout
+		<TextView
+			android:id="@+id/last_humidity_title"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Last humidity measure retrieved"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
+
+		<TextView
+			android:id="@+id/last_humidity_location"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="12dp"
+			android:text="undefined"
+			android:textSize="18sp"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/last_humidity_title" />
+
+		<TextView
+			android:id="@+id/last_humidity_timestamp"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="8dp"
+			android:text="dd-MM-yyyyThh:mm:ss"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/last_humidity_location" />
+
+		<ImageView
+			android:id="@+id/last_humidity_icon"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="12dp"
+			android:contentDescription="Water drop"
+			android:src="@drawable/ic_water_drop"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/last_humidity_timestamp" />
+
+		<TextView
+			android:id="@+id/last_humidity_value"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="8dp"
+			android:text="42.42 %"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/last_humidity_icon" />
+
+		<!-- TODO: add graphs	-->
+		<androidx.cardview.widget.CardView
+			android:id="@+id/card_line_graph"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:orientation="vertical">
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/last_humidity_value">
 
-			<TextView
-				android:id="@+id/list_humidity_subtitle"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginBottom="8dp"
-				android:text="Last 10 retrieved data" />
+		</androidx.cardview.widget.CardView>
 
-			<ListView
-				android:id="@+id/list_humidity"
+		<androidx.cardview.widget.CardView
+			android:id="@+id/card_list_humidity"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="16dp"
+			android:clickable="true"
+			android:descendantFocusability="blocksDescendants"
+			android:focusable="true"
+			android:foreground="?attr/selectableItemBackground"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/card_line_graph">
+
+			<LinearLayout
 				android:layout_width="match_parent"
-				android:layout_height="200dp"
-				android:layout_margin="16dp" />
-		</LinearLayout>
-	</androidx.cardview.widget.CardView>
+				android:layout_height="240dp"
+				android:orientation="vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+				<TextView
+					android:id="@+id/list_humidity_subtitle"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginStart="8dp"
+					android:layout_marginTop="8dp"
+					android:text="Last 10 retrieved data"
+					android:textSize="15sp" />
+
+				<ListView
+					android:id="@+id/list_humidity"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_margin="8dp" />
+			</LinearLayout>
+		</androidx.cardview.widget.CardView>
+
+	</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

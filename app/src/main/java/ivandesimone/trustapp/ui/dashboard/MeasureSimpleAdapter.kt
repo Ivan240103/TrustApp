@@ -8,7 +8,7 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import ivandesimone.trustapp.R
 import ivandesimone.trustapp.db.Measure
-import kotlin.math.roundToInt
+import java.text.DateFormat
 
 class MeasureSimpleAdapter(
 	private val context: Context,
@@ -26,9 +26,13 @@ class MeasureSimpleAdapter(
 			LayoutInflater.from(context).inflate(R.layout.row_simple_measure, parent, false)
 
 		val rowLocation: TextView = v.findViewById(R.id.row_location)
-		rowLocation.text = measures[position].location
+		val rowDate: TextView = v.findViewById(R.id.row_date)
 		val rowHumidity: TextView = v.findViewById(R.id.row_humidity)
-		rowHumidity.text = measures[position].humidity.roundToInt().toString() + " %"
+
+		val formatter = DateFormat.getDateInstance(DateFormat.SHORT)
+		rowLocation.text = measures[position].location
+		rowDate.text = formatter.format(measures[position].timestamp).substring(0, 5)
+		rowHumidity.text = "${measures[position].humidity} %"
 
 		return v
 	}

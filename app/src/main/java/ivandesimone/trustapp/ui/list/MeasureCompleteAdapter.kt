@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import ivandesimone.trustapp.R
 import ivandesimone.trustapp.db.Measure
-import kotlin.math.roundToInt
+import java.text.DateFormat
 
 class MeasureCompleteAdapter(
 	private var measures: List<Measure>,
@@ -28,10 +28,11 @@ class MeasureCompleteAdapter(
 
 	override fun onBindViewHolder(holder: MeasureCompleteViewHolder, position: Int) {
 		val measure = measures[position]
+		val formatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
 		holder.apply {
 			rowLocation.text = measure.location
-			// rowTimestamp.text = measure.
-			rowHumidity.text = measure.humidity.roundToInt().toString() + " %"
+			rowTimestamp.text = formatter.format(measure.timestamp)
+			rowHumidity.text = "${measure.humidity} %"
 
 			itemView.setOnClickListener {
 				onItemClick(measure.id)
