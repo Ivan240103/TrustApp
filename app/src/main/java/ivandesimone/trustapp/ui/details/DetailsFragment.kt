@@ -82,7 +82,6 @@ class DetailsFragment : Fragment(), OnMapReadyCallback {
 		}
 	}
 
-	// TODO: make map intercept scroll events
 	override fun onMapReady(p0: GoogleMap) {
 		detailsMap = p0
 		isMapReady = true

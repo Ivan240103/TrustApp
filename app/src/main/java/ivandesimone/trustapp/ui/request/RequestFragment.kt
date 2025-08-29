@@ -100,9 +100,13 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 			}
 			latEditText.text = Editable.Factory().newEditable(pos.latitude.toString())
 			longEditText.text = Editable.Factory().newEditable(pos.longitude.toString())
-			val locationResult = geocoder.getFromLocation(pos.latitude, pos.longitude, 1)
-			locationEditText.text =
-				Editable.Factory().newEditable(locationResult?.get(0)?.locality ?: "Unknown")
+			try {
+				val locationResult = geocoder.getFromLocation(pos.latitude, pos.longitude, 1)
+				locationEditText.text =
+					Editable.Factory().newEditable(locationResult?.get(0)?.locality ?: "Unknown")
+			} catch (exc: Exception) {
+				Toast.makeText(requireContext(), "Impossible to find location name", Toast.LENGTH_SHORT).show()
+			}
 		}
 	}
 
@@ -134,6 +138,7 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 				radiusEditText.text.toString().toInt(),
 				countEditText.text.toString().toByte()
 			)
+			Toast.makeText(requireContext(), "Data obtained!", Toast.LENGTH_SHORT).show()
 		} catch (exc: Throwable) {
 			Toast.makeText(requireContext(), "Mock data retrieval failed", Toast.LENGTH_SHORT).show()
 		}
