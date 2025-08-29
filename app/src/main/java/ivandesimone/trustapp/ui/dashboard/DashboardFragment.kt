@@ -1,8 +1,10 @@
 package ivandesimone.trustapp.ui.dashboard
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -25,7 +27,9 @@ import ivandesimone.trustapp.R
 import ivandesimone.trustapp.ui.details.DetailsFragment
 import ivandesimone.trustapp.viewmodels.MeasuresViewModel
 import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 class DashboardFragment : Fragment() {
 
@@ -98,12 +102,15 @@ class DashboardFragment : Fragment() {
 			val scatterData = ScatterData(dataSets as List<ScatterDataSet>?)
 			chart.data = scatterData
 
-			val formatter = DateFormat.getDateInstance(DateFormat.SHORT)
+			val formatter = SimpleDateFormat("dd/MM/yy", Locale.ITALY)
 			chart.apply {
-				xAxis.valueFormatter = object: ValueFormatter() {
-					override fun getAxisLabel(value: Float, axis: AxisBase?): String {
-						return formatter.format(Date(value.toLong()))
+				xAxis.apply {
+					valueFormatter = object: ValueFormatter() {
+						override fun getAxisLabel(value: Float, axis: AxisBase?): String {
+							return formatter.format(Date(value.toLong()))
+						}
 					}
+					setLabelCount(5, true)
 				}
 
 				axisLeft.axisMinimum = 0f
@@ -129,6 +136,7 @@ class DashboardFragment : Fragment() {
 		return Color.HSVToColor(floatArrayOf(hue, 0.8f, 0.9f))
 	}
 
+	@SuppressLint("ClickableViewAccessibility")
 	private fun initMeasureList(view: View) {
 		val cardListHumidity: CardView = view.findViewById(R.id.card_list_humidity)
 		cardListHumidity.setOnClickListener {
@@ -148,6 +156,18 @@ class DashboardFragment : Fragment() {
 					bundleOf(DetailsFragment.DETAILS_ID to it.id)
 				)
 			}
+		}
+		// to intercept the movement so the page doesn't scroll
+		listHumidity.setOnTouchListener { v, event ->
+			when (event.action) {
+				MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+					v.parent.requestDisallowInterceptTouchEvent(true)
+				}
+				MotionEvent.ACTION_UP -> {
+					v.parent.requestDisallowInterceptTouchEvent(false)
+				}
+			}
+			false
 		}
 
 		measuresViewModel.lastTenMeasures.observe(viewLifecycleOwner) { newMeasures ->
