@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SearchView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -15,7 +16,6 @@ import ivandesimone.trustapp.R
 import ivandesimone.trustapp.ui.details.DetailsFragment
 import ivandesimone.trustapp.viewmodels.MeasuresViewModel
 
-// TODO: add filters on displayed list
 class ListFragment : Fragment() {
 
 	private lateinit var measuresViewModel: MeasuresViewModel
@@ -38,6 +38,7 @@ class ListFragment : Fragment() {
 	}
 
 	private fun initRecyclerView(view: View) {
+		val completeListSearch: SearchView = view.findViewById(R.id.complete_list_search)
 		val completeList: RecyclerView = view.findViewById(R.id.complete_list)
 		val adapter = MeasureCompleteAdapter(emptyList()) { measureId: Int ->
 			navigateToDetails(measureId)
@@ -45,9 +46,20 @@ class ListFragment : Fragment() {
 		completeList.adapter = adapter
 		completeList.layoutManager = LinearLayoutManager(context)
 
-		measuresViewModel.allMeasures.observe(viewLifecycleOwner) { newMeasures ->
+		measuresViewModel.filteredMeasures.observe(viewLifecycleOwner) { newMeasures ->
 			adapter.updateMeasures(newMeasures)
 		}
+
+		completeListSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+			override fun onQueryTextChange(p0: String?): Boolean {
+				measuresViewModel.setSearchQuery(p0 ?: "")
+				return true
+			}
+
+			override fun onQueryTextSubmit(p0: String?): Boolean {
+				return false
+			}
+		})
 	}
 
 	private fun navigateToDetails(id: Int) {
