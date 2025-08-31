@@ -19,3 +19,16 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# WalletConnect SDK
+-keep class com.walletconnect.** { *; }
+-dontwarn com.walletconnect.**
+
+# Moshi (JSON library used by WalletConnect)
+-keep class com.squareup.moshi.** { *; }
+-keep @com.squareup.moshi.JsonQualifier @interface *
+-dontwarn com.squareup.moshi.**
+
+# OkHttp / Okio (Network libraries used by WalletConnect)
+-dontwarn okhttp3.**
+-dontwarn okio.**

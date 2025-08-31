@@ -32,37 +32,45 @@ android {
 		}
 	}
 	compileOptions {
-		sourceCompatibility = JavaVersion.VERSION_11
-		targetCompatibility = JavaVersion.VERSION_11
+		sourceCompatibility = JavaVersion.VERSION_17
+		targetCompatibility = JavaVersion.VERSION_17
 	}
 	kotlinOptions {
-		jvmTarget = "11"
+		jvmTarget = "17"
 	}
 }
 
 dependencies {
-
+	// General
 	implementation(libs.androidx.core.ktx)
 	implementation(libs.androidx.appcompat)
 	implementation(libs.material)
 	implementation(libs.androidx.activity)
 	implementation(libs.androidx.constraintlayout)
+	implementation(libs.androidx.recyclerview)
+	implementation(libs.kotlinx.coroutines)
+	// Navigation
 	implementation(libs.androidx.navigation.fragment.ktx)
 	implementation(libs.androidx.navigation.ui.ktx)
 	implementation(libs.androidx.fragment)
+	// Room
 	implementation(libs.androidx.room.common.jvm)
 	implementation(libs.androidx.room.runtime.android)
-	implementation(libs.kotlinx.coroutines)
-	implementation(libs.gson)
-	implementation(libs.retrofit)
-	implementation(libs.converter.gson)
 	ksp(libs.room.compiler)
-	implementation(libs.androidx.recyclerview)
-	implementation("com.walletconnect:android-core:1.35.2")
-	implementation("com.walletconnect:sign:2.35.2")
-	implementation("com.walletconnect:web3modal:1.6.6") // For dApp integration
+	// Remote HTTP
+	implementation(libs.retrofit)
+	implementation(libs.gson)
+	implementation(libs.converter.gson)
+	// Maps
 	implementation(libs.play.services.maps)
-	implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+	// Charts
+	implementation(libs.mpandroidchart)
+	// Web3
+	implementation(libs.android.core)
+	implementation(libs.sign)
+	implementation(libs.web3modal)
+	implementation(libs.core)
+	// Test
 	testImplementation(libs.junit)
 	androidTestImplementation(libs.androidx.junit)
 	androidTestImplementation(libs.androidx.espresso.core)

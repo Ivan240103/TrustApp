@@ -1,154 +1,128 @@
 package ivandesimone.trustapp.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
-import com.walletconnect.android.CoreClient
 import com.walletconnect.sign.client.Sign
 import com.walletconnect.sign.client.SignClient
-import ivandesimone.trustapp.ui.request.ChainParams
+import ivandesimone.trustapp.Debug
+import ivandesimone.trustapp.db.MeasureRepository
+import ivandesimone.trustapp.remote.Web3Handler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import org.web3j.abi.FunctionEncoder
-import org.web3j.abi.datatypes.DynamicStruct
-import org.web3j.abi.datatypes.Function
-import org.web3j.abi.datatypes.Utf8String
-import org.web3j.abi.datatypes.generated.Uint256
 import java.math.BigInteger
 
-class EthViewModel : ViewModel() {
+class EthViewModel(private val repo: MeasureRepository) : ViewModel() {
 
+	private val handler = Web3Handler()
 	private val _uiState = MutableStateFlow<Pair<String?, String?>>(null to null)
 	val uiState: StateFlow<Pair<String?, String?>> = _uiState
 
 	init {
+		// check for existing session
+		val existingSession = SignClient.getListOfSettledSessions().firstOrNull()
+		existingSession?.let {
+			val sessionTopic = it.topic
+			val fullAccount = it.namespaces["eip155"]?.accounts?.firstOrNull()
+			val userAddress = fullAccount?.split(":")?.get(2)
+
+			Debug.d("Found existing session: $sessionTopic")
+
+			userAddress?.let { it2 ->
+				Debug.d("Restoring session for address: $it2")
+				_uiState.value = sessionTopic to it2
+			}
+		} ?: Debug.d("No existing session found")
+
+		// set delegate
 		val delegate = object : SignClient.DappDelegate {
 			override fun onSessionApproved(approvedSession: Sign.Model.ApprovedSession) {
-				// get topic and user address
+				Debug.d("onSessionApproved called")
 				val sessionTopic = approvedSession.topic
-				val userAddress =
-					approvedSession.namespaces["eip155"]?.accounts?.firstOrNull()?.split(":")?.get(2)
-				viewModelScope.launch {
-					_uiState.value = sessionTopic to userAddress
+				var userAddress: String? = null
+
+				try {
+					val fullAccount = approvedSession.namespaces["eip155"]?.accounts?.firstOrNull()
+					fullAccount?.let {
+						userAddress = it.split(":")[2]
+						Debug.d("Successfully parsed address: $userAddress")
+					} ?: Debug.e("Could not find eip155 account in session approval.")
+				} catch (e: Exception) {
+					Debug.e("Error parsing address from session approval $e")
 				}
+
+				userAddress?.let {
+					viewModelScope.launch {
+						_uiState.value = sessionTopic to it
+					}
+				} ?: Debug.e("Failed to get userAddress, UI state will not be updated")
 			}
 
 			override fun onSessionDelete(deletedSession: Sign.Model.DeletedSession) {
+				Debug.d("onSessionDelete called")
 				viewModelScope.launch { _uiState.value = null to null }
 			}
 
-			override fun onConnectionStateChange(state: Sign.Model.ConnectionState) {}
-			override fun onError(error: Sign.Model.Error) {}
-			override fun onSessionEvent(sessionEvent: Sign.Model.SessionEvent) {}
-			override fun onSessionExtend(session: Sign.Model.Session) {}
-			override fun onSessionRejected(rejectedSession: Sign.Model.RejectedSession) {}
-			override fun onSessionUpdate(updatedSession: Sign.Model.UpdatedSession) {}
+			override fun onSessionRequestResponse(response: Sign.Model.SessionRequestResponse) {
+				when (val result = response.result) {
+					is Sign.Model.JsonRpcResponse.JsonRpcResult -> {
+						Debug.d("Transaction approved! Hash: ${result.result}")
+					}
+					is Sign.Model.JsonRpcResponse.JsonRpcError ->{
+						Debug.d("Transaction failed! Code ${result.code}: ${result.message}")
+					}
+				}
+			}
 
-			// not in gemini
-			override fun onProposalExpired(proposal: Sign.Model.ExpiredProposal) {}
-			override fun onRequestExpired(request: Sign.Model.ExpiredRequest) {}
-			override fun onSessionRequestResponse(response: Sign.Model.SessionRequestResponse) {}
+			override fun onConnectionStateChange(state: Sign.Model.ConnectionState) =
+				Debug.d("onConnectionStateChange called")
+
+			override fun onError(error: Sign.Model.Error) =
+				Debug.d("onError called: $error")
+
+			override fun onSessionEvent(sessionEvent: Sign.Model.SessionEvent) =
+				Debug.d("onSessionEvent called")
+
+			override fun onSessionExtend(session: Sign.Model.Session) =
+				Debug.d("onSessionExtend called")
+
+			override fun onSessionRejected(rejectedSession: Sign.Model.RejectedSession) =
+				Debug.d("onSessionRejected called")
+
+			override fun onSessionUpdate(updatedSession: Sign.Model.UpdatedSession) =
+				Debug.d("onSessionUpdate called")
+
+			override fun onProposalExpired(proposal: Sign.Model.ExpiredProposal) =
+				Debug.d("onProposalExpired called")
+
+			override fun onRequestExpired(request: Sign.Model.ExpiredRequest) =
+				Debug.d("onRequestExpired called")
 		}
+
 		SignClient.setDappDelegate(delegate)
 	}
 
-	fun connectToWallet(onUriReady: (String) -> Unit) {
-		// Define what your dApp needs: Sepolia chain + one method
-		val requiredNamespaces = mapOf(
-			"eip155" to Sign.Model.Namespace.Proposal(
-				chains = listOf("eip155:11155111"), // sepolia testnet
-				methods = listOf("eth_sendTransaction"),
-				events = listOf("chainChanged", "accountsChanged")
-			)
-		)
-
-		val pairing = CoreClient.Pairing.create { error ->
-			Log.e("WalletConnect", "Pairing error: $error")
-		}
-
-		if (pairing != null) {
-			val connectParams = Sign.Params.Connect(namespaces = requiredNamespaces, pairing = pairing)
-
-			SignClient.connect(connectParams,
-				onSuccess = { _ ->
-					onUriReady(pairing.uri)
-				},
-				onError = { error ->
-					Log.e("WalletConnect", "SignClient connect error: $error")
-				}
-			)
-		} else {
-			Log.e("WalletConnect", "Pairing not initialized!")
-		}
-
+	fun connectWallet(onUriReady: (String) -> Unit) {
+		handler.connectWallet(onUriReady)
 	}
 
-	private fun createTransactionData(queryValue: String): String {
-		// TODO: step 4 gemini -> web3j missing ?
-		val chainParams = ChainParams(25, 25, 25, 25)
-		val chainParamsStr = Gson().toJson(chainParams)
-		val ko = BigInteger.valueOf(1)
-		val ki = BigInteger.valueOf(1)
-		val feeValue = BigInteger.valueOf(1000000000000000) // 0.001 ETH in wei
-
-		val inputRequest = DynamicStruct(
-			Utf8String(queryValue),
-			Utf8String(chainParamsStr),
-			Uint256(ko),
-			Uint256(ki),
-			Uint256(feeValue)
-		)
-
-		val function = Function(
-			"submitRequest",
-			listOf(inputRequest),
-			emptyList()
-		)
-
-		return FunctionEncoder.encode(function)
+	fun approveZoniaTokens() {
+		viewModelScope.launch {
+			handler.sendApprove(BigInteger.valueOf(1000000000000000), uiState)
+		}
 	}
 
 	fun sendTransaction(query: String) {
 		viewModelScope.launch {
-			val (sessionTopic, userAddress) = uiState.value
-			if (sessionTopic == null || userAddress == null) {
-				// not connected
-				return@launch
-			}
-
-			val contractAddress = "0xfb663f4fc2624366B527c0d97271405D14503121"
-			val transactionData = createTransactionData(query)
-			val chainId = "eip155:11155111"
-
-			val transaction = """
-				{
-					"from": "$userAddress",
-					"to": "$contractAddress",
-					"data": "$transactionData"
-				}
-			""".trimIndent()
-
-			val requestParams = Sign.Params.Request(
-				sessionTopic = sessionTopic,
-				method = "eth_sendTransaction",
-				params = "[$transaction]",
-				chainId = chainId
-			)
-
-			SignClient.request(requestParams,
-				onSuccess = { pendingRequest: Sign.Model.SentRequest ->
-					// Request sent successfully. MetaMask will now prompt the user.
-					// The result (tx hash) will come via a webhook or you can check a block explorer.
-					// WalletConnect v2 for dApps doesn't directly return the result here.
-					// The wallet sends the result to the WalletConnect server.
-					Log.d("WalletConnect", "Request sent, ID: ${pendingRequest.requestId}")
-				},
-				onError = { error: Sign.Model.Error ->
-					Log.d("WalletConnect", "Request error: ${error.throwable.message}")
-				}
-			)
+			handler.sendTransaction(query, uiState)
 		}
+	}
+}
+
+@Suppress("UNCHECKED_CAST")
+class EthViewModelFactory(private val repo: MeasureRepository) : ViewModelProvider.Factory {
+	override fun <T : ViewModel> create(modelClass: Class<T>): T {
+		return EthViewModel(repo) as T
 	}
 }

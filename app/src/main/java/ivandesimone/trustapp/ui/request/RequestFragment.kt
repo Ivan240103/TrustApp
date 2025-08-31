@@ -26,13 +26,10 @@ import ivandesimone.trustapp.viewmodels.MeasuresViewModel
 
 class RequestFragment : Fragment(), OnMapReadyCallback {
 
-	private lateinit var ethVM: EthViewModel
+	private lateinit var ethViewModel: EthViewModel
 	private lateinit var measuresViewModel: MeasuresViewModel
 	private lateinit var geocoder: Geocoder
 
-	private lateinit var connectWalletButton: Button
-	private lateinit var requestZoniaButton: Button
-	private lateinit var requestMockButton: Button
 	private lateinit var latEditText: EditText
 	private lateinit var longEditText: EditText
 	private lateinit var locationEditText: EditText
@@ -50,7 +47,7 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 
-		ethVM = ViewModelProvider(this)[EthViewModel::class.java]
+		ethViewModel = ViewModelProvider(requireActivity())[EthViewModel::class.java]
 		measuresViewModel = ViewModelProvider(requireActivity())[MeasuresViewModel::class.java]
 
 		val mapFragment =
@@ -59,17 +56,15 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 
 		geocoder = Geocoder(requireContext())
 
-		connectWalletButton = view.findViewById(R.id.connect_wallet_button)
-		requestZoniaButton = view.findViewById(R.id.request_zonia_button)
-		requestMockButton = view.findViewById(R.id.request_mock_button)
 		latEditText = view.findViewById(R.id.lat_edittext)
 		longEditText = view.findViewById(R.id.long_edittext)
 		locationEditText = view.findViewById(R.id.location_edittext)
 		radiusEditText = view.findViewById(R.id.radius_edittext)
 		countEditText = view.findViewById(R.id.count_edittext)
 
+		val connectWalletButton: Button = view.findViewById(R.id.connect_wallet_button)
 		connectWalletButton.setOnClickListener {
-			ethVM.connectToWallet { uri ->
+			ethViewModel.connectWallet { uri ->
 				// create deeplink to MetaMask
 				val deepLink = "metamask://wc?uri=${Uri.encode(uri)}"
 				val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLink))
@@ -78,12 +73,19 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 			}
 		}
 
+		val approveZoniaButton: Button = view.findViewById(R.id.approve_zonia_button)
+		approveZoniaButton.setOnClickListener {
+			ethViewModel.approveZoniaTokens()
+		}
+
+		val requestZoniaButton: Button = view.findViewById(R.id.request_zonia_button)
 		requestZoniaButton.setOnClickListener {
 			requestZoniaMeasures()
 		}
 
+		val requestMockButton: Button = view.findViewById(R.id.request_mock_button)
 		requestMockButton.setOnClickListener {
-				requestMockMeasures()
+			requestMockMeasures()
 		}
 	}
 
@@ -127,7 +129,7 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 				}
 			}
 			""".trimIndent()
-		ethVM.sendTransaction(queryString)
+		ethViewModel.sendTransaction(queryString)
 	}
 
 	private fun requestMockMeasures() {

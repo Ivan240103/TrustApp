@@ -1,7 +1,6 @@
 package ivandesimone.trustapp
 
 import android.app.Application
-import android.util.Log
 import com.walletconnect.android.Core
 import com.walletconnect.android.CoreClient
 import com.walletconnect.android.relay.ConnectionType
@@ -13,6 +12,7 @@ class MyApp : Application() {
 	override fun onCreate() {
 		super.onCreate()
 
+		// ID from https://dashboard.reown.com/   (cloud.walletconnect.com)
 		val projectId = "73348ea706de4887fd8b34a23ec46ff2"
 		val serverUrl = "wss://relay.walletconnect.com?projectId=$projectId"
 		val appMetaData = Core.Model.AppMetaData(
@@ -27,18 +27,22 @@ class MyApp : Application() {
 		CoreClient.initialize(
 			relayServerUrl = serverUrl,
 			connectionType = ConnectionType.AUTOMATIC,
-			application = applicationContext as Application,
+			application = this,
 			metaData = appMetaData
 		) { error: Core.Model.Error ->
-			// retry initialization ???
-			Log.e("WalletConnect", "Init CoreClient error: $error")
+			Debug.e("CoreClient initialize error: $error")
 		}
 
 		// init SignClient
-		val init = Sign.Params.Init(core = CoreClient)
-		SignClient.initialize(init) { error ->
-			Log.e("WalletConnect", "Init SignClient error: $error")
-		}
+		SignClient.initialize(
+			init = Sign.Params.Init(core = CoreClient),
+			onSuccess = {
+				Debug.d("SignClient initialize success")
+			},
+			onError = { error ->
+				Debug.e("SignClient initialize error: $error")
+			}
+		)
 	}
 
 }

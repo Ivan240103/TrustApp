@@ -154,14 +154,23 @@
 			app:layout_constraintTop_toBottomOf="@id/count_edittext" />
 
 		<Button
-			android:id="@+id/request_zonia_button"
+			android:id="@+id/approve_zonia_button"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="16dp"
-			android:text="Request data from ZONIA"
+			android:text="Approve ZONIA tokens"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@id/connect_wallet_button" />
+
+		<Button
+			android:id="@+id/request_zonia_button"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="Request data from ZONIA"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/approve_zonia_button" />
 
 		<Button
 			android:id="@+id/request_mock_button"
