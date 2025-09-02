@@ -16,6 +16,7 @@ import java.math.BigInteger
 class EthViewModel(private val repo: MeasureRepository) : ViewModel() {
 
 	private val handler = Web3Handler()
+	// using StateFlow cause it's more reliable with coroutines
 	private val _uiState = MutableStateFlow<Pair<String?, String?>>(null to null)
 	val uiState: StateFlow<Pair<String?, String?>> = _uiState
 

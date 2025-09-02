@@ -1,0 +1,19 @@
+<resources>
+	<string-array name="timeout_entries">
+		<item>Unbounded</item>
+		<item>30 seconds</item>
+		<item>1 minute</item>
+		<item>5 minutes</item>
+		<item>15 minutes</item>
+		<item>30 minutes</item>
+	</string-array>
+	<!-- timeout for request in seconds -->
+	<string-array name="timeout_values">
+		<item>0</item>
+		<item>30</item>
+		<item>60</item>
+		<item>300</item>
+		<item>900</item>
+		<item>1800</item>
+	</string-array>
+</resources>

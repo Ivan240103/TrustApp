@@ -1,0 +1,32 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<PreferenceCategory app:title="Notifications">
+
+		<SwitchPreferenceCompat
+			app:key="notification"
+			app:summary="Receive notifications about data retrieved from ZONIA"
+			app:title="Enable notifications" />
+
+		<EditTextPreference
+			app:dependency="notification"
+			app:key="threshold"
+			app:dialogMessage="Notify me when is received a measure greater than"
+			app:title="Humidity threshold"
+			app:useSimpleSummaryProvider="true"
+			app:allowDividerBelow="false"/>
+
+	</PreferenceCategory>
+
+	<PreferenceCategory app:title="Network">
+
+		<ListPreference
+			app:defaultValue="0"
+			app:entries="@array/timeout_entries"
+			app:entryValues="@array/timeout_values"
+			app:key="timeout"
+			app:title="Request timeout"
+			app:useSimpleSummaryProvider="true" />
+
+	</PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,8 +1,6 @@
 package ivandesimone.trustapp.ui.request
 
-import android.content.Intent
 import android.location.Geocoder
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.view.LayoutInflater
@@ -61,17 +59,6 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 		locationEditText = view.findViewById(R.id.location_edittext)
 		radiusEditText = view.findViewById(R.id.radius_edittext)
 		countEditText = view.findViewById(R.id.count_edittext)
-
-		val connectWalletButton: Button = view.findViewById(R.id.connect_wallet_button)
-		connectWalletButton.setOnClickListener {
-			ethViewModel.connectWallet { uri ->
-				// create deeplink to MetaMask
-				val deepLink = "metamask://wc?uri=${Uri.encode(uri)}"
-				val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLink))
-				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-				startActivity(intent)
-			}
-		}
 
 		val approveZoniaButton: Button = view.findViewById(R.id.approve_zonia_button)
 		approveZoniaButton.setOnClickListener {

@@ -49,6 +49,8 @@ dependencies {
 	implementation(libs.androidx.constraintlayout)
 	implementation(libs.androidx.recyclerview)
 	implementation(libs.kotlinx.coroutines)
+	implementation(libs.androidx.preference)
+	implementation(libs.androidx.lifecycle.runtime.ktx)
 	// Navigation
 	implementation(libs.androidx.navigation.fragment.ktx)
 	implementation(libs.androidx.navigation.ui.ktx)
