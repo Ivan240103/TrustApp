@@ -50,6 +50,7 @@ class MeasureRepository(private val dao: MeasureDao, private val retrofit: Retro
 		}
 	}
 
+	// TODO: fire notification if a measure is > threshold
 	fun requestMockMeasures(coord: String, location: String, radius: Int, count: Byte) {
 		// enqueue already runs in a background thread
 		retrofit.getValues(count).enqueue(object: Callback<List<Int>> {
