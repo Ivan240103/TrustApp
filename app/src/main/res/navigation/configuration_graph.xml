@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/configuration_graph"
+	app:startDestination="@id/configuration_fragment">
+
+	<fragment
+		android:id="@+id/configuration_fragment"
+		android:name="ivandesimone.trustapp.ui.configuration.ConfigurationFragment"
+		android:label="Configuration"
+		tools:layout="@layout/fragment_configuration" />
+
+</navigation>

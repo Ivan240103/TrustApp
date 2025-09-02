@@ -50,8 +50,8 @@ class MainActivity : AppCompatActivity() {
 
 	private fun setupNavigation() {
 		// find navController
-		val navHostFragment = supportFragmentManager
-			.findFragmentById(R.id.navHostFragment) as NavHostFragment
+		val navHostFragment =
+			supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
 		navController = navHostFragment.navController
 
 		// setup bottom navigation
@@ -64,6 +64,16 @@ class MainActivity : AppCompatActivity() {
 		val appBarConfiguration =
 			AppBarConfiguration(setOf(R.id.dashboard_fragment, R.id.request_fragment, R.id.configuration_fragment))
 		setupActionBarWithNavController(navController, appBarConfiguration)
+
+		navController.addOnDestinationChangedListener { _, destination, _ ->
+			val parent = destination.parent
+			val menuItem = parent?.let {
+				bottomNavigation.menu.findItem(it.id)
+			}
+			menuItem?.let {
+				if (!it.isChecked) it.isChecked = true
+			}
+		}
 	}
 
 }
