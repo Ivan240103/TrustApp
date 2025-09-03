@@ -5,7 +5,7 @@ package ivandesimone.trustapp.utils.notifications
  * This implementation class will live in your app's main module and will use your
  * NotificationHelper to do the actual work.
  */
-class AlertNotificator(private val notificator: Notificator) : INotification {
+class AlertNotificator(private val notificator: Notificator) : IAlert {
 
 	override fun showAlertNotification(title: String, text: String) {
 		notificator.fireNotification(title, text)
