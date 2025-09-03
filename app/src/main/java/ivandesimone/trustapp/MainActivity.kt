@@ -12,8 +12,6 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import ivandesimone.trustapp.db.MeasureDatabase
 import ivandesimone.trustapp.db.MeasureRepository
-import ivandesimone.trustapp.remote.RetroCalls
-import ivandesimone.trustapp.remote.RetrofitClientInstance
 import ivandesimone.trustapp.viewmodels.EthViewModel
 import ivandesimone.trustapp.viewmodels.EthViewModelFactory
 import ivandesimone.trustapp.viewmodels.MeasuresViewModel
@@ -40,8 +38,7 @@ class MainActivity : AppCompatActivity() {
 
 	private fun setupViewModels() {
 		val db = MeasureDatabase.getDatabase(this)
-		val api = RetrofitClientInstance.getRetrofitInstance().create(RetroCalls::class.java)
-		val repo = MeasureRepository(db.measureDao(), api)
+		val repo = MeasureRepository(db.measureDao())
 		measuresViewModel =
 			ViewModelProvider(this, MeasuresViewModelFactory(repo))[MeasuresViewModel::class.java]
 		ethViewModel =

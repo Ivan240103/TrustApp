@@ -6,13 +6,22 @@ import com.walletconnect.sign.client.Sign
 import com.walletconnect.sign.client.SignClient
 import ivandesimone.trustapp.Debug
 import ivandesimone.trustapp.ui.request.ChainParams
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.withContext
 import org.web3j.abi.FunctionEncoder
+import org.web3j.abi.FunctionReturnDecoder
+import org.web3j.abi.TypeReference
 import org.web3j.abi.datatypes.Address
 import org.web3j.abi.datatypes.DynamicStruct
 import org.web3j.abi.datatypes.Function
 import org.web3j.abi.datatypes.Utf8String
+import org.web3j.abi.datatypes.generated.Bytes32
 import org.web3j.abi.datatypes.generated.Uint256
+import org.web3j.protocol.Web3j
+import org.web3j.protocol.core.DefaultBlockParameterName
+import org.web3j.protocol.core.methods.request.Transaction
+import org.web3j.protocol.http.HttpService
 import java.math.BigInteger
 
 class Web3Handler {
@@ -21,9 +30,12 @@ class Web3Handler {
 		private const val SEPOLIA_CHAIN_ID = "eip155:11155111"
 		private const val GATE_ADDRESS = "0xbb6849DC5D97Bd55DE9A23B58CD5bBF3Bfdda0FA"
 		private const val ZONIA_TOKEN_ADDRESS = "0x8821aFDa84d71988cf0b570C535FC502720B33DD"
+		private const val RPC_NODE_URL = "https://eth-sepolia.g.alchemy.com/v2/0YwukylbE3vy-oWWK218B"
 	}
 
 	private data class EthTransaction(val from: String, val to: String, val data: String)
+
+	private val web3j = Web3j.build(HttpService(RPC_NODE_URL))
 
 	fun connectWallet(onUriReady: (String) -> Unit) {
 		// TrustApp needs for connection proposal to MetaMask
@@ -102,30 +114,6 @@ class Web3Handler {
 		)
 	}
 
-	private fun createTransactionData(queryValue: String): String {
-		val chainParams = ChainParams(25, 25, 25, 25)
-		val chainParamsStr = Gson().toJson(chainParams)
-		val ko = BigInteger.valueOf(1)
-		val ki = BigInteger.valueOf(1)
-		val feeValue = BigInteger.valueOf(1000000000000000) // 0.001 ETH in wei
-
-		val inputRequest = DynamicStruct(
-			Utf8String(queryValue),
-			Utf8String(chainParamsStr),
-			Uint256(ko),
-			Uint256(ki),
-			Uint256(feeValue)
-		)
-
-		val function = Function(
-			"submitRequest",
-			listOf(inputRequest),
-			emptyList()
-		)
-
-		return FunctionEncoder.encode(function)
-	}
-
 	// use inside a coroutine
 	fun sendTransaction(query: String, uiState: StateFlow<Pair<String?, String?>>) {
 		val (sessionTopic, userAddress) = uiState.value
@@ -179,5 +167,52 @@ class Web3Handler {
 //		)
 //	}
 
-	// TODO: implement getResult, return data that will be saved in ethViewModel
+	// TODO: implement getResult that will be used from repo, return data that will be saved in ethViewModel
+	suspend fun getResult(requestId: ByteArray): String? = withContext(Dispatchers.IO) {
+		val function = Function(
+			"getResult",
+			listOf(Bytes32(requestId)),
+			listOf(object : TypeReference<Utf8String>() {})
+		)
+
+		val encodedFunction = FunctionEncoder.encode(function)
+
+		val response = web3j.ethCall(
+			Transaction.createEthCallTransaction(null, GATE_ADDRESS, encodedFunction),
+			DefaultBlockParameterName.LATEST
+		).send()
+
+		if (response != null && !response.hasError() && response.value.isNotEmpty()) {
+			val output = FunctionReturnDecoder.decode(response.value, function.outputParameters)
+			return@withContext output.firstOrNull()?.value as? String
+		} else {
+			Debug.e("getResult error with web3j")
+			return@withContext null
+		}
+	}
+
+	private fun createTransactionData(queryValue: String): String {
+		val chainParams = ChainParams(25, 25, 25, 25)
+		val chainParamsStr = Gson().toJson(chainParams)
+		val ko = BigInteger.valueOf(1)
+		val ki = BigInteger.valueOf(1)
+		val feeValue = BigInteger.valueOf(1000000000000000) // 0.001 ETH in wei
+
+		val inputRequest = DynamicStruct(
+			Utf8String(queryValue),
+			Utf8String(chainParamsStr),
+			Uint256(ko),
+			Uint256(ki),
+			Uint256(feeValue)
+		)
+
+		val function = Function(
+			"submitRequest",
+			listOf(inputRequest),
+			emptyList()
+		)
+
+		return FunctionEncoder.encode(function)
+	}
+
 }

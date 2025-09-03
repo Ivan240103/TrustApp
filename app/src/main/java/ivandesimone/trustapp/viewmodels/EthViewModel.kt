@@ -7,15 +7,11 @@ import com.walletconnect.sign.client.Sign
 import com.walletconnect.sign.client.SignClient
 import ivandesimone.trustapp.Debug
 import ivandesimone.trustapp.db.MeasureRepository
-import ivandesimone.trustapp.remote.Web3Handler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.math.BigInteger
 
 class EthViewModel(private val repo: MeasureRepository) : ViewModel() {
-
-	private val handler = Web3Handler()
 	// using StateFlow cause it's more reliable with coroutines
 	private val _uiState = MutableStateFlow<Pair<String?, String?>>(null to null)
 	val uiState: StateFlow<Pair<String?, String?>> = _uiState
@@ -104,19 +100,15 @@ class EthViewModel(private val repo: MeasureRepository) : ViewModel() {
 		SignClient.setDappDelegate(delegate)
 	}
 
-	fun connectWallet(onUriReady: (String) -> Unit) {
-		handler.connectWallet(onUriReady)
-	}
-
 	fun approveZoniaTokens() {
 		viewModelScope.launch {
-			handler.sendApprove(BigInteger.valueOf(1000000000000000), uiState)
+			repo.approveZoniaTokens(uiState)
 		}
 	}
 
 	fun sendTransaction(query: String) {
 		viewModelScope.launch {
-			handler.sendTransaction(query, uiState)
+			repo.sendTransaction(query, uiState)
 		}
 	}
 }
