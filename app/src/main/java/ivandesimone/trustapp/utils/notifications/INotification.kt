@@ -1,4 +1,4 @@
-package ivandesimone.trustapp.utils
+package ivandesimone.trustapp.utils.notifications
 
 /* Define a Contract (Interface): You create an interface that describes the action you want to
  * perform (e.g., "show a notification").

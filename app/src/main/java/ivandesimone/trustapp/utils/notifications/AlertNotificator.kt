@@ -1,4 +1,4 @@
-package ivandesimone.trustapp.utils
+package ivandesimone.trustapp.utils.notifications
 
 /*
  * Implement the Contract in the UI Layer: You create a class that implements this interface.

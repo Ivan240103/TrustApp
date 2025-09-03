@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import ivandesimone.trustapp.remote.MockHandler
 import ivandesimone.trustapp.remote.Web3Handler
-import ivandesimone.trustapp.utils.INotification
+import ivandesimone.trustapp.utils.notifications.INotification
 import kotlinx.coroutines.flow.StateFlow
 import java.math.BigInteger
 

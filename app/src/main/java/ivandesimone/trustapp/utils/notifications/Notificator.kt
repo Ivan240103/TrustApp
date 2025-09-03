@@ -1,4 +1,4 @@
-package ivandesimone.trustapp.utils
+package ivandesimone.trustapp.utils.notifications
 
 import android.Manifest
 import android.app.NotificationChannel

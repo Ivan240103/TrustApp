@@ -13,8 +13,8 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import ivandesimone.trustapp.db.MeasureDatabase
 import ivandesimone.trustapp.db.MeasureRepository
-import ivandesimone.trustapp.utils.AlertNotificator
-import ivandesimone.trustapp.utils.Notificator
+import ivandesimone.trustapp.utils.notifications.AlertNotificator
+import ivandesimone.trustapp.utils.notifications.Notificator
 import ivandesimone.trustapp.viewmodels.EthViewModel
 import ivandesimone.trustapp.viewmodels.EthViewModelFactory
 import ivandesimone.trustapp.viewmodels.MeasuresViewModel
