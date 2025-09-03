@@ -1,0 +1,14 @@
+package ivandesimone.trustapp.utils
+
+/*
+ * Implement the Contract in the UI Layer: You create a class that implements this interface.
+ * This implementation class will live in your app's main module and will use your
+ * NotificationHelper to do the actual work.
+ */
+class AlertNotificator(private val notificator: Notificator) : INotification {
+
+	override fun showAlertNotification(title: String, text: String) {
+		notificator.fireNotification(title, text)
+	}
+
+}

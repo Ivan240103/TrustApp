@@ -8,10 +8,13 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.preference.PreferenceManager
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import ivandesimone.trustapp.db.MeasureDatabase
 import ivandesimone.trustapp.db.MeasureRepository
+import ivandesimone.trustapp.utils.AlertNotificator
+import ivandesimone.trustapp.utils.Notificator
 import ivandesimone.trustapp.viewmodels.EthViewModel
 import ivandesimone.trustapp.viewmodels.EthViewModelFactory
 import ivandesimone.trustapp.viewmodels.MeasuresViewModel
@@ -38,7 +41,9 @@ class MainActivity : AppCompatActivity() {
 
 	private fun setupViewModels() {
 		val db = MeasureDatabase.getDatabase(this)
-		val repo = MeasureRepository(db.measureDao())
+		val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+		val alertNotificator = AlertNotificator(Notificator(this))
+		val repo = MeasureRepository(db.measureDao(), preferences, alertNotificator)
 		measuresViewModel =
 			ViewModelProvider(this, MeasuresViewModelFactory(repo))[MeasuresViewModel::class.java]
 		ethViewModel =

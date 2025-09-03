@@ -11,7 +11,7 @@
 			app:dependency="notification"
 			app:key="threshold"
 			app:dialogMessage="Notify me when is received a measure greater than"
-			app:title="Humidity threshold"
+			app:title="Humidity threshold [%]"
 			app:useSimpleSummaryProvider="true"
 			app:allowDividerBelow="false"/>
 

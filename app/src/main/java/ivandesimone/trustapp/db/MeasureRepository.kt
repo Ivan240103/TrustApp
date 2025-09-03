@@ -1,12 +1,22 @@
 package ivandesimone.trustapp.db
 
+import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import ivandesimone.trustapp.remote.MockHandler
 import ivandesimone.trustapp.remote.Web3Handler
+import ivandesimone.trustapp.utils.INotification
 import kotlinx.coroutines.flow.StateFlow
 import java.math.BigInteger
 
-class MeasureRepository(private val dao: MeasureDao) {
+/*
+ * Inject the Implementation: You provide the concrete implementation to your Repository through
+ * its constructor (this is called Dependency Injection).
+ */
+class MeasureRepository(
+	private val dao: MeasureDao,
+	private val preferences: SharedPreferences,
+	private val notifier: INotification
+) {
 
 	private val mockHandler = MockHandler()
 	private val web3Handler = Web3Handler()
@@ -41,12 +51,21 @@ class MeasureRepository(private val dao: MeasureDao) {
 		}
 	}
 
-	// TODO: fire notification if a measure is > threshold
 	private fun insertMultipleMeasures(measures: List<Measure>) {
 		MeasureDatabase.databaseExecutor.execute {
 			dao.insertMultipleMeasures(measures)
 		}
-		// if (toInsert.any { it.humidity > PreferenceManager.getDefaultSharedPreferences() })
+		// if notifications are enabled, the permission has been previously granted
+		val isNotificationEnabled = preferences.getBoolean("notification", false)
+		val threshold = preferences.getString("threshold", null)?.toFloat()
+		threshold?.let { t ->
+			if (isNotificationEnabled && t >= 0 && t <= 100 && measures.any { m -> m.humidity > t }) {
+				notifier.showAlertNotification(
+					"Threshold exceeded!",
+					"It has been registered a humidity value over $t %"
+				)
+			}
+		}
 	}
 
 }
