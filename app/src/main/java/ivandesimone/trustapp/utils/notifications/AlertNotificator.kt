@@ -8,7 +8,7 @@ package ivandesimone.trustapp.utils.notifications
 class AlertNotificator(private val notificator: Notificator) : IAlert {
 
 	override fun showAlertNotification(title: String, text: String) {
-		notificator.fireNotification(title, text)
+		notificator.fireAlertNotification(title, text)
 	}
 
 }

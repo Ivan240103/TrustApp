@@ -33,7 +33,7 @@ class Notificator(private val context: Context) {
 		notificationManager.createNotificationChannel(alertChannel)
 	}
 
-	fun fireNotification(title: String, text: String) {
+	fun fireAlertNotification(title: String, text: String) {
 		if (ContextCompat.checkSelfPermission(
 				context,
 				Manifest.permission.POST_NOTIFICATIONS
@@ -49,6 +49,7 @@ class Notificator(private val context: Context) {
 				.setSmallIcon(R.drawable.metamask)
 				.setContentTitle(title)
 				.setContentText(text)
+				.setPriority(NotificationCompat.PRIORITY_HIGH)
 				.setContentIntent(pendingIntent)
 			notificationManager.notify(alertId, builder.build())
 			alertId++
