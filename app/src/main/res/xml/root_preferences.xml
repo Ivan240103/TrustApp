@@ -20,7 +20,7 @@
 	<PreferenceCategory app:title="Network">
 
 		<ListPreference
-			app:defaultValue="0"
+			app:defaultValue="300"
 			app:entries="@array/timeout_entries"
 			app:entryValues="@array/timeout_values"
 			app:key="timeout"
