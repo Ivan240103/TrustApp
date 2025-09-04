@@ -5,6 +5,7 @@
 		<item>5 minutes</item>
 		<item>15 minutes</item>
 		<item>30 minutes</item>
+		<item>1 hour</item>
 	</string-array>
 	<!-- timeout for request in seconds -->
 	<string-array name="timeout_values">
@@ -13,5 +14,6 @@
 		<item>300</item>
 		<item>900</item>
 		<item>1800</item>
+		<item>3600</item>
 	</string-array>
 </resources>

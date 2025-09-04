@@ -7,14 +7,21 @@ import com.walletconnect.sign.client.Sign
 import com.walletconnect.sign.client.SignClient
 import ivandesimone.trustapp.Debug
 import ivandesimone.trustapp.db.MeasureRepository
+import ivandesimone.trustapp.utils.notifications.IRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class EthViewModel(private val repo: MeasureRepository) : ViewModel() {
+class EthViewModel(
+	private val repo: MeasureRepository,
+	private val notifier: IRequest
+) : ViewModel() {
 	// using StateFlow cause it's more reliable with coroutines
 	private val _uiState = MutableStateFlow<Pair<String?, String?>>(null to null)
 	val uiState: StateFlow<Pair<String?, String?>> = _uiState
+
+	private var zoniaQuery = ""
+	private var isWaitingForApproval = false
 
 	init {
 		// check for existing session
@@ -64,10 +71,76 @@ class EthViewModel(private val repo: MeasureRepository) : ViewModel() {
 			override fun onSessionRequestResponse(response: Sign.Model.SessionRequestResponse) {
 				when (val result = response.result) {
 					is Sign.Model.JsonRpcResponse.JsonRpcResult -> {
-						Debug.d("Transaction approved! Hash: ${result.result}")
+						val txHash = result.result
+						Debug.d("Transaction sent! Hash: $txHash")
+
+						// check if the hash if for approve
+						if (isWaitingForApproval) {
+							isWaitingForApproval = false
+
+							viewModelScope.launch {
+								Debug.d("Waiting for approve tx to be confirmed")
+								val (isApproved, receipt) = repo.waitForTransactionReceipt(txHash)
+
+								if (isApproved) {
+									Debug.d("Approval confirmed, now sending the real transaction...")
+									repo.sendTransaction(zoniaQuery, uiState)
+								} else {
+									Debug.e("Approval failed. Aborting...")
+									if (receipt == null) {
+										notifier.showRequestNotification(
+											"Approval timed out!",
+											"The approve request has exceeded the time bound"
+										)
+									} else {
+										notifier.showRequestNotification(
+											"Transaction not confirmed!",
+											"The approve transaction has not been confirmed, request aborted."
+										)
+									}
+								}
+							}
+						} else {
+							// waiting for return data from zonia
+							viewModelScope.launch {
+								Debug.d("Waiting for submitRequest tx to be confirmed")
+								val (isApproved, receipt) = repo.waitForTransactionReceipt(txHash)
+
+								if (isApproved) {
+									Debug.d("submitRequest tx confirmed, now getting result data...")
+									// if isApproved is true, receipt cannot be null
+									val (isCompleted, resultString) = repo.extractResultFromLogs(receipt!!)
+									if (isCompleted) {
+										notifier.showRequestNotification(
+											"Request completed!",
+											"Your data has been successfully retrieved: $resultString"
+										)
+									} else {
+										notifier.showRequestNotification(
+											"Request failed!",
+											resultString
+										)
+									}
+								} else {
+									Debug.e("submitRequest failed. Aborting...")
+									if (receipt == null) {
+										notifier.showRequestNotification(
+											"Request timed out!",
+											"The data request has exceeded the time bound"
+										)
+									} else {
+										notifier.showRequestNotification(
+											"Transaction not confirmed!",
+											"The submitRequest transaction has not been confirmed, request aborted."
+										)
+									}
+								}
+							}
+						}
 					}
 					is Sign.Model.JsonRpcResponse.JsonRpcError ->{
 						Debug.d("Transaction failed! Code ${result.code}: ${result.message}")
+						isWaitingForApproval = false
 					}
 				}
 			}
@@ -100,22 +173,26 @@ class EthViewModel(private val repo: MeasureRepository) : ViewModel() {
 		SignClient.setDappDelegate(delegate)
 	}
 
-	fun approveZoniaTokens() {
+	fun connectWallet(onUriReady: (String) -> Unit) {
+		repo.connectWallet { uri -> onUriReady(uri) }
+	}
+
+	fun requestZoniaMeasures(query: String) {
+		zoniaQuery = query
+		isWaitingForApproval = true
 		viewModelScope.launch {
 			repo.approveZoniaTokens(uiState)
 		}
 	}
 
-	fun sendTransaction(query: String) {
-		viewModelScope.launch {
-			repo.sendTransaction(query, uiState)
-		}
-	}
 }
 
 @Suppress("UNCHECKED_CAST")
-class EthViewModelFactory(private val repo: MeasureRepository) : ViewModelProvider.Factory {
+class EthViewModelFactory(
+	private val repo: MeasureRepository,
+	private val notifier: IRequest
+) : ViewModelProvider.Factory {
 	override fun <T : ViewModel> create(modelClass: Class<T>): T {
-		return EthViewModel(repo) as T
+		return EthViewModel(repo, notifier) as T
 	}
 }

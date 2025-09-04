@@ -4,8 +4,9 @@ import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import ivandesimone.trustapp.remote.MockHandler
 import ivandesimone.trustapp.remote.Web3Handler
-import ivandesimone.trustapp.utils.notifications.IAlert
+import ivandesimone.trustapp.utils.notifications.IRequest
 import kotlinx.coroutines.flow.StateFlow
+import org.web3j.protocol.core.methods.response.TransactionReceipt
 import java.math.BigInteger
 
 /*
@@ -15,11 +16,15 @@ import java.math.BigInteger
 class MeasureRepository(
 	private val dao: MeasureDao,
 	private val preferences: SharedPreferences,
-	private val notifier: IAlert
+	private val notifier: IRequest
 ) {
 
 	private val mockHandler = MockHandler()
-	private val web3Handler = Web3Handler()
+	private val web3Handler = Web3Handler(preferences, notifier)
+
+	fun connectWallet(onUriReady: (String) -> Unit) {
+		web3Handler.connectWallet { uri -> onUriReady(uri) }
+	}
 
 	suspend fun approveZoniaTokens(uiState: StateFlow<Pair<String?, String?>>) {
 		web3Handler.sendApprove(BigInteger.valueOf(1000000000000000), uiState)
@@ -27,6 +32,14 @@ class MeasureRepository(
 
 	suspend fun sendTransaction(query: String, uiState: StateFlow<Pair<String?, String?>>) {
 		web3Handler.sendTransaction(query, uiState)
+	}
+
+	suspend fun waitForTransactionReceipt(txHash: String): Pair<Boolean, TransactionReceipt?> {
+		return web3Handler.waitForTransactionReceipt(txHash)
+	}
+
+	fun extractResultFromLogs(receipt: TransactionReceipt): Pair<Boolean, String> {
+		return web3Handler.extractResultFromLogs(receipt)
 	}
 
 	fun requestMockMeasures(coord: String, location: String, radius: Int, count: Byte) {
@@ -60,7 +73,7 @@ class MeasureRepository(
 		val threshold = preferences.getString("threshold", null)?.toFloat()
 		threshold?.let { t ->
 			if (isNotificationEnabled && t >= 0 && t <= 100 && measures.any { m -> m.humidity > t }) {
-				notifier.showAlertNotification(
+				notifier.showRequestNotification(
 					"Threshold exceeded!",
 					"It has been registered a humidity value over $t %"
 				)

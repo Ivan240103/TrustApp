@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -15,25 +16,25 @@ import ivandesimone.trustapp.R
 
 class Notificator(private val context: Context) {
 	companion object {
-		private const val ALERT_CHANNEL_ID = "alert_channel"
-		private const val ALERT_CHANNEL_NAME = "Alert"
-		private const val ALERT_CHANNEL_DESCRIPTION = "Notifications for values over the threshold"
-		private var alertId = 0
+		private const val REQUEST_CHANNEL_ID = "request_channel"
+		private const val REQUEST_CHANNEL_NAME = "Request"
+		private const val REQUEST_CHANNEL_DESCRIPTION = "Notifications related to data requests"
+		private var requestNotificationId = 0
 	}
 
 	private val notificationManager = NotificationManagerCompat.from(context)
 
 	init {
-		val alertChannel = NotificationChannel(
-			ALERT_CHANNEL_ID,
-			ALERT_CHANNEL_NAME,
+		val requestChannel = NotificationChannel(
+			REQUEST_CHANNEL_ID,
+			REQUEST_CHANNEL_NAME,
 			NotificationManager.IMPORTANCE_HIGH
 		)
-		alertChannel.description = ALERT_CHANNEL_DESCRIPTION
-		notificationManager.createNotificationChannel(alertChannel)
+		requestChannel.description = REQUEST_CHANNEL_DESCRIPTION
+		notificationManager.createNotificationChannel(requestChannel)
 	}
 
-	fun fireAlertNotification(title: String, text: String) {
+	fun fireRequestNotification(title: String, message: String) {
 		if (ContextCompat.checkSelfPermission(
 				context,
 				Manifest.permission.POST_NOTIFICATIONS
@@ -45,14 +46,18 @@ class Notificator(private val context: Context) {
 				context, 0, intent, PendingIntent.FLAG_IMMUTABLE
 			)
 
-			val builder = NotificationCompat.Builder(context, ALERT_CHANNEL_ID)
+			val builder = NotificationCompat.Builder(context, REQUEST_CHANNEL_ID)
 				.setSmallIcon(R.drawable.metamask)
 				.setContentTitle(title)
-				.setContentText(text)
+				.setContentText(message)
 				.setPriority(NotificationCompat.PRIORITY_HIGH)
 				.setContentIntent(pendingIntent)
-			notificationManager.notify(alertId, builder.build())
-			alertId++
+			notificationManager.notify(requestNotificationId, builder.build())
+			requestNotificationId++
 		}
+	}
+
+	fun fireRequestToast(text: String) {
+		Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
 	}
 }

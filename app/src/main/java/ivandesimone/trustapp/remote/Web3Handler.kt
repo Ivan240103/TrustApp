@@ -1,19 +1,24 @@
 package ivandesimone.trustapp.remote
 
+import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.walletconnect.android.CoreClient
 import com.walletconnect.sign.client.Sign
 import com.walletconnect.sign.client.SignClient
 import ivandesimone.trustapp.Debug
 import ivandesimone.trustapp.ui.request.ChainParams
+import ivandesimone.trustapp.utils.notifications.IRequest
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
+import org.web3j.abi.EventEncoder
 import org.web3j.abi.FunctionEncoder
 import org.web3j.abi.FunctionReturnDecoder
 import org.web3j.abi.TypeReference
 import org.web3j.abi.datatypes.Address
 import org.web3j.abi.datatypes.DynamicStruct
+import org.web3j.abi.datatypes.Event
 import org.web3j.abi.datatypes.Function
 import org.web3j.abi.datatypes.Utf8String
 import org.web3j.abi.datatypes.generated.Bytes32
@@ -21,16 +26,24 @@ import org.web3j.abi.datatypes.generated.Uint256
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.core.methods.request.Transaction
+import org.web3j.protocol.core.methods.response.TransactionReceipt
 import org.web3j.protocol.http.HttpService
+import org.web3j.tx.Contract
+import java.io.IOException
 import java.math.BigInteger
 
-class Web3Handler {
+class Web3Handler(
+	private val preferences: SharedPreferences,
+	private val notifier: IRequest
+) {
 
 	companion object {
 		private const val SEPOLIA_CHAIN_ID = "eip155:11155111"
 		private const val GATE_ADDRESS = "0xbb6849DC5D97Bd55DE9A23B58CD5bBF3Bfdda0FA"
 		private const val ZONIA_TOKEN_ADDRESS = "0x8821aFDa84d71988cf0b570C535FC502720B33DD"
 		private const val RPC_NODE_URL = "https://eth-sepolia.g.alchemy.com/v2/0YwukylbE3vy-oWWK218B"
+		private const val EVENT_COMPLETED = "RequestCompleted"
+		private const val EVENT_FAILED = "RequestFailed"
 	}
 
 	private data class EthTransaction(val from: String, val to: String, val data: String)
@@ -107,9 +120,11 @@ class Web3Handler {
 			request = requestParams,
 			onSuccess = { pendingRequest: Sign.Model.SentRequest ->
 				Debug.d("sendApprove success, request ID: ${pendingRequest.requestId}")
+				notifier.showRequestToast("Open MetaMask to sign the transaction")
 			},
 			onError = { error: Sign.Model.Error ->
 				Debug.e("sendApprove error: $error")
+				notifier.showRequestToast("Error in approval")
 			}
 		)
 	}
@@ -147,48 +162,128 @@ class Web3Handler {
 				// The result (tx hash) will come via a webhook or you can check a block explorer.
 				// The wallet sends the result to the WalletConnect server.
 				Debug.d("sendTransaction success, request ID: ${pendingRequest.requestId}")
+				notifier.showRequestToast("Open MetaMask to sign the transaction")
 			},
 			onError = { error: Sign.Model.Error ->
 				Debug.d("sendTransaction error: ${error.throwable.message}")
+				notifier.showRequestToast("Error in transaction")
 			}
 		)
 	}
 
-//	fun submitRequest(query: String) {
-//		val feeAmount = BigInteger.valueOf(1000000000000000)
-//
-//		sendApprove(
-//			amount = feeAmount,
-//			onSuccess = {
-//				// should wait for approval confirmation before proceeding
-//				Debug.d("approve zonia tokens success")
-//				sendTransaction(query)
-//			}
-//		)
-//	}
+	suspend fun waitForTransactionReceipt(txHash: String): Pair<Boolean, TransactionReceipt?> =
+		withContext(Dispatchers.IO){
+			// ask the chain every 10 seconds
+			val pollingInterval = 10000L
+			val timeout = preferences.getString("timeout", null)?.toLong() ?: 300L
+			val maxAttempts = (timeout * 1000) / pollingInterval
 
-	// TODO: implement getResult that will be used from repo, return data that will be saved in ethViewModel
-	suspend fun getResult(requestId: ByteArray): String? = withContext(Dispatchers.IO) {
+			for (i in 0 until maxAttempts) {
+				try {
+					val receipt =
+						web3j.ethGetTransactionReceipt(txHash).send()?.transactionReceipt?.orElse(null)
+
+					if (receipt != null) {
+						Debug.d("Attempt ${i + 1}: receipt found for tx $txHash on block ${receipt.blockNumber}")
+						return@withContext if (receipt.isStatusOK) {
+							Debug.d("Transaction successful")
+							Pair(true, receipt)
+						} else {
+							Debug.e("Transaction failed. Status ${receipt.status}")
+							Pair(false, receipt)
+						}
+					} else {
+						Debug.d("Still waiting for receipt, attempt ${i + 1}")
+						delay(pollingInterval)
+					}
+				} catch (e: IOException) {
+					Debug.e("Network error while waiting for tx receipt: ${e.message}")
+					delay(pollingInterval)
+				}
+			}
+			Debug.e("Data request timed out for tx $txHash")
+			return@withContext Pair(false, null)
+		}
+
+	suspend fun getResult(requestId: Bytes32): String? {
+		// ask the chain every 10 seconds
+		val pollingInterval = 10000L
+		val timeout = preferences.getString("timeout", null)?.toLong() ?: 300L
+		val maxAttempts = (timeout * 1000) / pollingInterval
+
 		val function = Function(
 			"getResult",
-			listOf(Bytes32(requestId)),
+			listOf(requestId),
 			listOf(object : TypeReference<Utf8String>() {})
 		)
-
 		val encodedFunction = FunctionEncoder.encode(function)
 
-		val response = web3j.ethCall(
-			Transaction.createEthCallTransaction(null, GATE_ADDRESS, encodedFunction),
-			DefaultBlockParameterName.LATEST
-		).send()
+		for (i in 0 until maxAttempts) {
+			try {
+				val resultHex = web3j.ethCall(
+					Transaction.createEthCallTransaction(null, GATE_ADDRESS, encodedFunction),
+					DefaultBlockParameterName.LATEST
+				).send().value
+				val decodedResult = FunctionReturnDecoder.decode(resultHex, function.outputParameters)
+				val stringData = decodedResult.getOrNull(0)?.value as? String
 
-		if (response != null && !response.hasError() && response.value.isNotEmpty()) {
-			val output = FunctionReturnDecoder.decode(response.value, function.outputParameters)
-			return@withContext output.firstOrNull()?.value as? String
-		} else {
-			Debug.e("getResult error with web3j")
-			return@withContext null
+				if (!stringData.isNullOrEmpty() && stringData != "PENDING") {
+					Debug.d("Result found: $stringData")
+					return stringData
+				} else {
+					Debug.d("Result is still pending at attempt ${i + 1}")
+					delay(pollingInterval)
+				}
+			} catch (e: Exception) {
+				Debug.e("Error while polling for result: ${e.message}")
+				delay(pollingInterval)
+			}
 		}
+		Debug.e("Result polling timed out for requestId ${requestId.value}")
+		return null
+	}
+
+	fun extractResultFromLogs(receipt: TransactionReceipt): Pair<Boolean, String> {
+		Debug.d("Scanning receipt for result string ${receipt.transactionHash}")
+
+		val requestCompletedEvent = Event(EVENT_COMPLETED,
+			listOf(
+				object : TypeReference<Bytes32>(true) {},
+				object : TypeReference<Utf8String>(false) {}
+			)
+		)
+		val requestCompletedSignature = EventEncoder.encode(requestCompletedEvent)
+
+		val requestFailedEvent = Event(EVENT_FAILED,
+			listOf(
+				object : TypeReference<Bytes32>(true) {},
+				object : TypeReference<Utf8String>(false) {}
+			)
+		)
+		val requestFailedSignature = EventEncoder.encode(requestFailedEvent)
+
+		receipt.logs.forEach { log ->
+			val eventSignature = log.topics.getOrNull(0)
+
+			when (eventSignature) {
+				requestCompletedSignature -> {
+					val eventValues = Contract.staticExtractEventParameters(requestCompletedEvent, log)
+					val requestId = eventValues.indexedValues[0] as Bytes32
+					val resultString = eventValues.nonIndexedValues[0] as Utf8String
+					Debug.d("Request COMPLETED: ${resultString.value}")
+					return Pair(true, resultString.value)
+				}
+				requestFailedSignature -> {
+					val eventValues = Contract.staticExtractEventParameters(requestFailedEvent, log)
+					val requestId = eventValues.indexedValues[0] as Bytes32
+					val resultString = eventValues.nonIndexedValues[0] as Utf8String
+					Debug.e("Request FAILED: ${resultString.value}")
+					return Pair(false, resultString.value)
+				}
+			}
+		}
+
+		return Pair(false, "No event $EVENT_COMPLETED or $EVENT_FAILED was found in logs")
 	}
 
 	private fun createTransactionData(queryValue: String): String {

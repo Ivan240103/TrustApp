@@ -13,8 +13,8 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import ivandesimone.trustapp.db.MeasureDatabase
 import ivandesimone.trustapp.db.MeasureRepository
-import ivandesimone.trustapp.utils.notifications.AlertNotificator
 import ivandesimone.trustapp.utils.notifications.Notificator
+import ivandesimone.trustapp.utils.notifications.RequestNotificator
 import ivandesimone.trustapp.viewmodels.EthViewModel
 import ivandesimone.trustapp.viewmodels.EthViewModelFactory
 import ivandesimone.trustapp.viewmodels.MeasuresViewModel
@@ -42,12 +42,14 @@ class MainActivity : AppCompatActivity() {
 	private fun setupViewModels() {
 		val db = MeasureDatabase.getDatabase(this)
 		val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-		val alertNotificator = AlertNotificator(Notificator(this))
-		val repo = MeasureRepository(db.measureDao(), preferences, alertNotificator)
+		val requestNotificator = RequestNotificator(Notificator(this))
+		val repo = MeasureRepository(db.measureDao(), preferences, requestNotificator)
 		measuresViewModel =
 			ViewModelProvider(this, MeasuresViewModelFactory(repo))[MeasuresViewModel::class.java]
-		ethViewModel =
-			ViewModelProvider(this, EthViewModelFactory(repo))[EthViewModel::class.java]
+		ethViewModel = ViewModelProvider(
+			this,
+			EthViewModelFactory(repo, requestNotificator)
+		)[EthViewModel::class.java]
 	}
 
 	private fun setupNavigation() {
@@ -64,7 +66,13 @@ class MainActivity : AppCompatActivity() {
 		val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
 		setSupportActionBar(toolbar)
 		val appBarConfiguration =
-			AppBarConfiguration(setOf(R.id.dashboard_fragment, R.id.request_fragment, R.id.configuration_fragment))
+			AppBarConfiguration(
+				setOf(
+					R.id.dashboard_fragment,
+					R.id.request_fragment,
+					R.id.configuration_fragment
+				)
+			)
 		setupActionBarWithNavController(navController, appBarConfiguration)
 
 		navController.addOnDestinationChangedListener { _, destination, _ ->

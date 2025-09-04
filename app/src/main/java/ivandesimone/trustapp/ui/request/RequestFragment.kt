@@ -60,11 +60,6 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 		radiusEditText = view.findViewById(R.id.radius_edittext)
 		countEditText = view.findViewById(R.id.count_edittext)
 
-		val approveZoniaButton: Button = view.findViewById(R.id.approve_zonia_button)
-		approveZoniaButton.setOnClickListener {
-			ethViewModel.approveZoniaTokens()
-		}
-
 		val requestZoniaButton: Button = view.findViewById(R.id.request_zonia_button)
 		requestZoniaButton.setOnClickListener {
 			requestZoniaMeasures()
@@ -116,7 +111,7 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 				}
 			}
 			""".trimIndent()
-		ethViewModel.sendTransaction(queryString)
+		ethViewModel.requestZoniaMeasures(queryString)
 	}
 
 	private fun requestMockMeasures() {

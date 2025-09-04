@@ -4,6 +4,8 @@ package ivandesimone.trustapp.utils.notifications
  * perform (e.g., "show a notification").
  * The Repository will depend on this abstract interface, not a concrete Android class.
  */
-interface IAlert {
-	fun showAlertNotification(title: String, text: String)
+interface IRequest {
+	fun showRequestNotification(title: String, message: String)
+
+	fun showRequestToast(text: String)
 }

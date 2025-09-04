@@ -16,7 +16,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import ivandesimone.trustapp.R
-import ivandesimone.trustapp.remote.Web3Handler
 import ivandesimone.trustapp.viewmodels.EthViewModel
 import kotlinx.coroutines.launch
 
@@ -73,9 +72,8 @@ class ConfigurationFragment : Fragment() {
 	}
 
 	private fun setConnectWalletListener() {
-		val web3Handler = Web3Handler()
 		connectWalletButton.setOnClickListener {
-			web3Handler.connectWallet { uri ->
+			ethViewModel.connectWallet { uri ->
 				// create deeplink to MetaMask
 				val deepLink = "metamask://wc?uri=${Uri.encode(uri)}"
 				val intent = Intent(Intent.ACTION_VIEW, deepLink.toUri())
