@@ -10,14 +10,14 @@
 	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_margin="16dp">
+		android:layout_margin="@dimen/screen_margin">
 
 		<TextView
-			android:id="@+id/request_info_text"
+			android:id="@+id/request_map_label"
+			style="@style/label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="Select your area of interest"
-			android:textSize="20sp"
+			android:text="@string/request_map_label"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent" />
 
@@ -25,33 +25,35 @@
 			android:id="@+id/request_map_container"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="32dp"
+			android:layout_marginTop="@dimen/default_margin"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/request_info_text">
+			app:layout_constraintTop_toBottomOf="@id/request_map_label">
 
 			<androidx.fragment.app.FragmentContainerView
 				android:id="@+id/request_map_fragment"
 				android:name="com.google.android.gms.maps.SupportMapFragment"
 				android:layout_width="match_parent"
-				android:layout_height="200dp" />
+				android:layout_height="@dimen/map_height" />
 		</ivandesimone.trustapp.ui.details.TouchMapFrameLayout>
 
 		<TextView
 			android:id="@+id/lat_label"
+			style="@style/label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="24dp"
-			android:text="Latitude"
+			android:layout_marginTop="@dimen/medium_margin"
+			android:text="@string/latitude"
 			app:layout_constraintStart_toStartOf="@id/lat_edittext"
 			app:layout_constraintTop_toBottomOf="@id/request_map_container" />
 
 		<EditText
 			android:id="@+id/lat_edittext"
+			style="@style/form_field"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_marginEnd="8dp"
-			android:hint="44.489626"
+			android:layout_marginEnd="@dimen/small_margin"
+			android:hint="@string/lat_placeholder"
 			android:inputType="text"
 			app:layout_constraintEnd_toStartOf="@id/long_edittext"
 			app:layout_constraintHorizontal_chainStyle="spread"
@@ -61,40 +63,44 @@
 
 		<TextView
 			android:id="@+id/long_label"
+			style="@style/label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="24dp"
-			android:text="Longitude"
+			android:layout_marginTop="@dimen/medium_margin"
+			android:text="@string/longitude"
 			app:layout_constraintStart_toStartOf="@id/long_edittext"
 			app:layout_constraintTop_toBottomOf="@id/request_map_container" />
 
 		<EditText
 			android:id="@+id/long_edittext"
+			style="@style/form_field"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_marginStart="8dp"
-			android:hint="11.338970"
+			android:layout_marginStart="@dimen/small_margin"
+			android:hint="@string/long_placeholder"
 			android:inputType="text"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintHorizontal_chainStyle="spread"
 			app:layout_constraintHorizontal_weight="1"
 			app:layout_constraintStart_toEndOf="@id/lat_edittext"
-			app:layout_constraintTop_toBottomOf="@+id/long_label" />
+			app:layout_constraintTop_toBottomOf="@id/long_label" />
 
 		<TextView
 			android:id="@+id/location_label"
+			style="@style/label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="24dp"
-			android:text="Location name"
+			android:layout_marginTop="@dimen/medium_margin"
+			android:text="@string/location"
 			app:layout_constraintStart_toStartOf="@id/location_edittext"
 			app:layout_constraintTop_toBottomOf="@id/lat_edittext" />
 
 		<EditText
 			android:id="@+id/location_edittext"
-			android:layout_width="0dp"
+			style="@style/form_field"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:hint="Bologna"
+			android:hint="@string/location_placeholder"
 			android:inputType="text"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
@@ -102,51 +108,52 @@
 
 		<TextView
 			android:id="@+id/radius_label"
+			style="@style/label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="24dp"
-			android:text="Area's radius (in meters)"
-			app:layout_constraintStart_toStartOf="parent"
+			android:layout_marginTop="@dimen/medium_margin"
+			android:text="@string/radius"
+			app:layout_constraintStart_toStartOf="@id/radius_edittext"
 			app:layout_constraintTop_toBottomOf="@id/location_edittext" />
 
 		<EditText
 			android:id="@+id/radius_edittext"
-			android:layout_width="0dp"
+			style="@style/form_field"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:hint="500"
+			android:hint="@string/radius_placeholder"
 			android:inputType="number"
-			android:text="500"
-			app:layout_constraintEnd_toEndOf="parent"
+			android:text="@string/radius_placeholder"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@id/radius_label" />
 
 		<TextView
 			android:id="@+id/count_label"
+			style="@style/label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="24dp"
-			android:text="Number of measurement desired:"
-			app:layout_constraintStart_toStartOf="parent"
+			android:layout_marginTop="@dimen/medium_margin"
+			android:text="@string/n_measurement"
+			app:layout_constraintStart_toStartOf="@id/count_edittext"
 			app:layout_constraintTop_toBottomOf="@id/radius_edittext" />
 
 		<EditText
 			android:id="@+id/count_edittext"
-			android:layout_width="70dp"
+			style="@style/form_field"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginStart="16dp"
-			android:hint="1"
+			android:hint="@string/count_placeholder"
 			android:inputType="number"
-			android:text="1"
-			android:textAlignment="center"
-			app:layout_constraintBottom_toBottomOf="@id/count_label"
-			app:layout_constraintStart_toEndOf="@id/count_label"
-			app:layout_constraintTop_toTopOf="@id/count_label" />
+			android:text="@string/count_placeholder"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/count_label" />
 
 		<Button
 			android:id="@+id/request_zonia_button"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="Request data from ZONIA"
+			android:layout_marginTop="@dimen/medium_margin"
+			android:text="@string/request_zonia"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@id/count_edittext" />
@@ -155,12 +162,22 @@
 			android:id="@+id/request_mock_button"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="16dp"
-			android:text="Request mock data"
-			app:layout_constraintBottom_toBottomOf="parent"
+			android:text="@string/request_mock"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@id/request_zonia_button" />
+
+		<TextView
+			android:id="@+id/request_log"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginVertical="@dimen/default_margin"
+			android:textColor="@color/dark_gray"
+			android:textSize="@dimen/log"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/request_mock_button" />
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

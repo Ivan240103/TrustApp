@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -25,6 +26,12 @@ import ivandesimone.trustapp.viewmodels.MeasuresViewModel
 
 class RequestFragment : Fragment(), OnMapReadyCallback {
 
+	inner class Logger(val logs: TextView) {
+		fun log(str: String) {
+			logs.text = logs.text.toString() + "\n" + str
+		}
+	}
+
 	private lateinit var ethViewModel: EthViewModel
 	private lateinit var measuresViewModel: MeasuresViewModel
 	private lateinit var geocoder: Geocoder
@@ -34,6 +41,7 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 	private lateinit var locationEditText: EditText
 	private lateinit var radiusEditText: EditText
 	private lateinit var countEditText: EditText
+	private lateinit var logs: TextView
 	private var marker: Marker? = null
 
 	override fun onCreateView(
@@ -60,13 +68,17 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 		locationEditText = view.findViewById(R.id.location_edittext)
 		radiusEditText = view.findViewById(R.id.radius_edittext)
 		countEditText = view.findViewById(R.id.count_edittext)
+		logs = view.findViewById(R.id.request_log)
 
 		val requestZoniaButton: Button = view.findViewById(R.id.request_zonia_button)
 		requestZoniaButton.isEnabled = ethViewModel.uiState.value.second != null
 		requestZoniaButton.setOnClickListener {
-			requestZoniaMeasures()
+			logs.text = ""
+			val logger = Logger(logs)
+			requestZoniaMeasures(logger)
 		}
 
+		// TODO: check field to be filled
 		val requestMockButton: Button = view.findViewById(R.id.request_mock_button)
 		requestMockButton.setOnClickListener {
 			requestMockMeasures()
@@ -96,7 +108,7 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 		}
 	}
 
-	private fun requestZoniaMeasures() {
+	private fun requestZoniaMeasures(logger: Logger) {
 		// define the query JSON as a raw string literal
 		val query = Query(
 			"s4agri:AmbientHumidity",
@@ -110,7 +122,7 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 			)
 		)
 		val queryJson = Gson().toJson(query)
-		ethViewModel.requestZoniaMeasures(queryJson)
+		ethViewModel.requestZoniaMeasures(queryJson, logger)
 	}
 
 	private fun requestMockMeasures() {

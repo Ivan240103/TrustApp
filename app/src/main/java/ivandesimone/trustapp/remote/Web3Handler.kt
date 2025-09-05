@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.web3j.abi.EventEncoder
 import org.web3j.abi.FunctionEncoder
-import org.web3j.abi.FunctionReturnDecoder
 import org.web3j.abi.TypeReference
 import org.web3j.abi.datatypes.Address
 import org.web3j.abi.datatypes.DynamicStruct
@@ -24,8 +23,6 @@ import org.web3j.abi.datatypes.Utf8String
 import org.web3j.abi.datatypes.generated.Bytes32
 import org.web3j.abi.datatypes.generated.Uint256
 import org.web3j.protocol.Web3j
-import org.web3j.protocol.core.DefaultBlockParameterName
-import org.web3j.protocol.core.methods.request.Transaction
 import org.web3j.protocol.core.methods.response.TransactionReceipt
 import org.web3j.protocol.http.HttpService
 import org.web3j.tx.Contract
@@ -204,44 +201,6 @@ class Web3Handler(
 			Debug.e("Data request timed out for tx $txHash")
 			return@withContext Pair(false, null)
 		}
-
-	suspend fun getResult(requestId: Bytes32): String? {
-		// ask the chain every 10 seconds
-		val pollingInterval = 10000L
-		val timeout = preferences.getString("timeout", null)?.toLong() ?: 300L
-		val maxAttempts = (timeout * 1000) / pollingInterval
-
-		val function = Function(
-			"getResult",
-			listOf(requestId),
-			listOf(object : TypeReference<Utf8String>() {})
-		)
-		val encodedFunction = FunctionEncoder.encode(function)
-
-		for (i in 0 until maxAttempts) {
-			try {
-				val resultHex = web3j.ethCall(
-					Transaction.createEthCallTransaction(null, GATE_ADDRESS, encodedFunction),
-					DefaultBlockParameterName.LATEST
-				).send().value
-				val decodedResult = FunctionReturnDecoder.decode(resultHex, function.outputParameters)
-				val stringData = decodedResult.getOrNull(0)?.value as? String
-
-				if (!stringData.isNullOrEmpty() && stringData != "PENDING") {
-					Debug.d("Result found: $stringData")
-					return stringData
-				} else {
-					Debug.d("Result is still pending at attempt ${i + 1}")
-					delay(pollingInterval)
-				}
-			} catch (e: Exception) {
-				Debug.e("Error while polling for result: ${e.message}")
-				delay(pollingInterval)
-			}
-		}
-		Debug.e("Result polling timed out for requestId ${requestId.value}")
-		return null
-	}
 
 	fun extractResultFromLogs(receipt: TransactionReceipt): Pair<Boolean, String> {
 		Debug.d("Scanning receipt for result string ${receipt.transactionHash}")

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<style name="label">
+		<item name="android:textSize">@dimen/label</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:textColor">@color/app_primary</item>
+	</style>
+
+	<style name="form_field">
+		<item name="android:backgroundTint">@color/app_primary</item>
+	</style>
+</resources>

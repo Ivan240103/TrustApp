@@ -7,6 +7,7 @@ import com.walletconnect.sign.client.Sign
 import com.walletconnect.sign.client.SignClient
 import ivandesimone.trustapp.Debug
 import ivandesimone.trustapp.db.MeasureRepository
+import ivandesimone.trustapp.ui.request.RequestFragment
 import ivandesimone.trustapp.utils.notifications.IRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +22,7 @@ class EthViewModel(
 	val uiState: StateFlow<Pair<String?, String?>> = _uiState
 
 	private var zoniaQuery = ""
+	private lateinit var logger: RequestFragment.Logger
 	private var isWaitingForApproval = false
 
 	init {
@@ -84,6 +86,7 @@ class EthViewModel(
 
 								if (isApproved) {
 									Debug.d("Approval confirmed, now sending the real transaction...")
+									logger.log("Approve confirmed")
 									repo.sendTransaction(zoniaQuery, uiState)
 								} else {
 									Debug.e("Approval failed. Aborting...")
@@ -177,8 +180,9 @@ class EthViewModel(
 		repo.connectWallet { uri -> onUriReady(uri) }
 	}
 
-	fun requestZoniaMeasures(query: String) {
+	fun requestZoniaMeasures(query: String, logger: RequestFragment.Logger) {
 		zoniaQuery = query
+		this.logger = logger
 		isWaitingForApproval = true
 		viewModelScope.launch {
 			repo.approveZoniaTokens(uiState)
