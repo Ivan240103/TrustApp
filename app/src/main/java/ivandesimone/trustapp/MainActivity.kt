@@ -1,7 +1,9 @@
 package ivandesimone.trustapp
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -11,6 +13,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 import ivandesimone.trustapp.db.MeasureDatabase
 import ivandesimone.trustapp.db.MeasureRepository
 import ivandesimone.trustapp.utils.notifications.Notificator
@@ -42,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 	private fun setupViewModels() {
 		val db = MeasureDatabase.getDatabase(this)
 		val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-		val requestNotificator = RequestNotificator(Notificator(this))
+		val requestNotificator = getNotifier()
 		val repo = MeasureRepository(db.measureDao(), preferences, requestNotificator)
 		measuresViewModel =
 			ViewModelProvider(this, MeasuresViewModelFactory(repo))[MeasuresViewModel::class.java]
@@ -86,4 +89,22 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 
+	private fun getNotifier(): RequestNotificator {
+		val notificator = Notificator(this, getMetamaskSnack())
+		val requestNotificator = RequestNotificator(notificator)
+		return requestNotificator
+	}
+
+	private fun getMetamaskSnack(): Snackbar {
+		val intent = Intent(Intent.ACTION_VIEW, "metamask://".toUri())
+		Debug.d("Intent: $intent")
+		val snack = Snackbar.make(
+			findViewById(R.id.main),
+			"Check MetaMask to sign the transaction",
+			Snackbar.LENGTH_LONG
+		).setAction("OPEN") {
+			startActivity(intent)
+		}
+		return snack
+	}
 }

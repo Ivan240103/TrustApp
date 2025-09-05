@@ -84,7 +84,7 @@ class Web3Handler(
 	}
 
 	// use inside a coroutine
-	fun sendApprove(amount: BigInteger, uiState: StateFlow<Pair<String?, String?>>) {
+	fun sendApprove(amount: BigInteger, uiState: StateFlow<Pair<String?, String?>>, onApproveSent: () -> Unit) {
 		val (sessionTopic, userAddress) = uiState.value
 
 		Debug.d("sendApprove start, sessionTopic: $sessionTopic, userAddress: $userAddress")
@@ -120,7 +120,7 @@ class Web3Handler(
 			request = requestParams,
 			onSuccess = { pendingRequest: Sign.Model.SentRequest ->
 				Debug.d("sendApprove success, request ID: ${pendingRequest.requestId}")
-				notifier.showRequestToast("Open MetaMask to sign the transaction")
+				onApproveSent()
 			},
 			onError = { error: Sign.Model.Error ->
 				Debug.e("sendApprove error: $error")
@@ -130,7 +130,7 @@ class Web3Handler(
 	}
 
 	// use inside a coroutine
-	fun sendTransaction(query: String, uiState: StateFlow<Pair<String?, String?>>) {
+	fun sendTransaction(query: String, uiState: StateFlow<Pair<String?, String?>>, onRequestSent: () -> Unit) {
 		val (sessionTopic, userAddress) = uiState.value
 
 		Debug.d("sendTransaction start, sessionTopic: $sessionTopic, userAddress: $userAddress")
@@ -162,7 +162,7 @@ class Web3Handler(
 				// The result (tx hash) will come via a webhook or you can check a block explorer.
 				// The wallet sends the result to the WalletConnect server.
 				Debug.d("sendTransaction success, request ID: ${pendingRequest.requestId}")
-				notifier.showRequestToast("Open MetaMask to sign the transaction")
+				onRequestSent()
 			},
 			onError = { error: Sign.Model.Error ->
 				Debug.d("sendTransaction error: ${error.throwable.message}")
@@ -189,7 +189,7 @@ class Web3Handler(
 							Debug.d("Transaction successful")
 							Pair(true, receipt)
 						} else {
-							Debug.e("Transaction failed. Status ${receipt.status}")
+							Debug.e("Transaction failed. Status ${receipt.revertReason}")
 							Pair(false, receipt)
 						}
 					} else {

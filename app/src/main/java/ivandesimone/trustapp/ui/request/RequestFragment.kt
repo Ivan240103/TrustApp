@@ -18,6 +18,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.gson.Gson
 import ivandesimone.trustapp.R
 import ivandesimone.trustapp.viewmodels.EthViewModel
 import ivandesimone.trustapp.viewmodels.MeasuresViewModel
@@ -61,6 +62,7 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 		countEditText = view.findViewById(R.id.count_edittext)
 
 		val requestZoniaButton: Button = view.findViewById(R.id.request_zonia_button)
+		requestZoniaButton.isEnabled = ethViewModel.uiState.value.second != null
 		requestZoniaButton.setOnClickListener {
 			requestZoniaMeasures()
 		}
@@ -96,22 +98,19 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 
 	private fun requestZoniaMeasures() {
 		// define the query JSON as a raw string literal
-		val queryString = """
-			{
-				"topic": "s4agri:AmbientHumidity",
-				"geo": {
-					"type": "Feature",
-					"geometry": {
-						"type": "Point",
-						"coordinates": [${latEditText.text}, ${longEditText.text}]
-					},
-					"properties": {
-						"radius": ${radiusEditText.text}
-					}
-				}
-			}
-			""".trimIndent()
-		ethViewModel.requestZoniaMeasures(queryString)
+		val query = Query(
+			"s4agri:AmbientHumidity",
+			Geo(
+				"Feature",
+				Geometry(
+					"Point",
+					listOf(latEditText.text.toString().toDouble(), longEditText.text.toString().toDouble())
+				),
+				Properties(radiusEditText.text.toString().toInt())
+			)
+		)
+		val queryJson = Gson().toJson(query)
+		ethViewModel.requestZoniaMeasures(queryJson)
 	}
 
 	private fun requestMockMeasures() {

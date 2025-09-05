@@ -15,4 +15,8 @@ class RequestNotificator(private val notificator: Notificator) : IRequest {
 		notificator.fireRequestToast(text)
 	}
 
+	override fun showRequestSnack() {
+		notificator.fireRequestSnack()
+	}
+
 }

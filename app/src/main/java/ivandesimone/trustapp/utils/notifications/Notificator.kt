@@ -11,10 +11,11 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.google.android.material.snackbar.Snackbar
 import ivandesimone.trustapp.MainActivity
 import ivandesimone.trustapp.R
 
-class Notificator(private val context: Context) {
+class Notificator(private val context: Context, private val intentSnack: Snackbar) {
 	companion object {
 		private const val REQUEST_CHANNEL_ID = "request_channel"
 		private const val REQUEST_CHANNEL_NAME = "Request"
@@ -59,5 +60,9 @@ class Notificator(private val context: Context) {
 
 	fun fireRequestToast(text: String) {
 		Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
+	}
+
+	fun fireRequestSnack() {
+		intentSnack.show()
 	}
 }

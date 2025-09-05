@@ -8,4 +8,6 @@ interface IRequest {
 	fun showRequestNotification(title: String, message: String)
 
 	fun showRequestToast(text: String)
+
+	fun showRequestSnack()
 }

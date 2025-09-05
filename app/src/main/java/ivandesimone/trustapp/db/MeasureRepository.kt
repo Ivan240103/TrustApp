@@ -27,11 +27,15 @@ class MeasureRepository(
 	}
 
 	suspend fun approveZoniaTokens(uiState: StateFlow<Pair<String?, String?>>) {
-		web3Handler.sendApprove(BigInteger.valueOf(1000000000000000), uiState)
+		web3Handler.sendApprove(BigInteger.valueOf(1000000000000000), uiState) {
+			notifier.showRequestSnack()
+		}
 	}
 
 	suspend fun sendTransaction(query: String, uiState: StateFlow<Pair<String?, String?>>) {
-		web3Handler.sendTransaction(query, uiState)
+		web3Handler.sendTransaction(query, uiState) {
+			notifier.showRequestSnack()
+		}
 	}
 
 	suspend fun waitForTransactionReceipt(txHash: String): Pair<Boolean, TransactionReceipt?> {
