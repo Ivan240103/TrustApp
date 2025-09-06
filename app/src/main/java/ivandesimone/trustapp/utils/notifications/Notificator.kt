@@ -61,7 +61,7 @@ class Notificator(private val context: Context, private val intentSnack: Snackba
 			)
 
 			val builder = NotificationCompat.Builder(context, REQUEST_CHANNEL_ID)
-				.setSmallIcon(R.drawable.metamask) // TODO: change icon with TrustApp
+				.setSmallIcon(R.mipmap.ic_trust_app)
 				.setContentTitle(title)
 				.setContentText(message)
 				.setPriority(NotificationCompat.PRIORITY_HIGH)
