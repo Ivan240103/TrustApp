@@ -60,24 +60,26 @@ class Web3ViewModel(
 			}
 
 			override fun onSessionRequestResponse(response: Sign.Model.SessionRequestResponse) {
-				when (val result = response.result) {
-					is Sign.Model.JsonRpcResponse.JsonRpcResult -> {
-						val txHash = result.result
-						Debug.d("Transaction sent on Sepolia. Hash: $txHash")
+				viewModelScope.launch {
+					when (val result = response.result) {
+						is Sign.Model.JsonRpcResponse.JsonRpcResult -> {
+							val txHash = result.result
+							Debug.d("Transaction sent on Sepolia. Hash: $txHash")
 
-						if (isWaitingForApproval) {
-							// waiting for approval to spend
-							isWaitingForApproval = false
+							if (isWaitingForApproval) {
+								// waiting for approval to spend
+								isWaitingForApproval = false
+								logger.log("Approve to spend sent...")
 
-							viewModelScope.launch {
 								val (isApproved, receipt) = repo.waitForTransactionReceipt(txHash)
 
 								if (isApproved) {
 									Debug.d("approve confirmed, now sending request transaction...")
-									logger.log("Approve confirmed")
+									logger.log("Approve to spend confirmed...")
 									repo.sendTransaction(gateQuery, connection)
 								} else {
 									Debug.e("approve failed. Aborting...")
+									logger.log("Approve to spend not confirmed.")
 									if (receipt == null) {
 										notifier.showRequestNotification(
 											"Approval timed out!",
@@ -90,17 +92,18 @@ class Web3ViewModel(
 										)
 									}
 								}
-							}
-						} else {
-							// waiting for return data from zonia
-							viewModelScope.launch {
+							} else {
+								// waiting for return data from zonia
+								logger.log("Request sent...")
 								val (isApproved, receipt) = repo.waitForTransactionReceipt(txHash)
 
 								if (isApproved) {
 									Debug.d("submitRequest confirmed, now getting result data...")
+									logger.log("Request confirmed...")
 									// if isApproved is true, receipt cannot be null
 									val (isCompleted, resultString) = repo.extractResultFromLogs(receipt!!)
 									if (isCompleted) {
+										logger.log("Request completed!")
 										notifier.showRequestNotification(
 											"Request completed!",
 											"Your data has been successfully retrieved: $resultString"
@@ -108,6 +111,7 @@ class Web3ViewModel(
 										// TODO: insert data in db
 										// repo.insertMeasurements()
 									} else {
+										logger.log("Request failed!")
 										notifier.showRequestNotification(
 											"Request failed!",
 											resultString
@@ -115,6 +119,7 @@ class Web3ViewModel(
 									}
 								} else {
 									Debug.e("submitRequest failed. Aborting...")
+									logger.log("Request not confirmed.")
 									if (receipt == null) {
 										notifier.showRequestNotification(
 											"Request timed out!",
@@ -129,11 +134,12 @@ class Web3ViewModel(
 								}
 							}
 						}
-					}
 
-					is Sign.Model.JsonRpcResponse.JsonRpcError -> {
-						Debug.e("Transaction not sent! ${result.code}: ${result.message}")
-						isWaitingForApproval = false
+						is Sign.Model.JsonRpcResponse.JsonRpcError -> {
+							Debug.e("Transaction not sent! ${result.code}: ${result.message}")
+							logger.log("Transaction not sent.")
+							isWaitingForApproval = false
+						}
 					}
 				}
 			}

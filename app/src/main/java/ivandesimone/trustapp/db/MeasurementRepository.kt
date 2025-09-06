@@ -82,8 +82,11 @@ class MeasurementRepository(
 	 */
 	fun requestMockMeasurements(coord: String, location: String, radius: Int, count: Byte) {
 		mockHandler.requestMeasurements(coord, location, radius, count) { data ->
-			// TODO: send notification
 			insertMeasurements(data)
+			notifier.showRequestNotification(
+				"Mock data arrived!",
+				"The $count measurements you requested has been saved."
+			)
 		}
 	}
 

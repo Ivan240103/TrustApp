@@ -159,8 +159,6 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 				radiusEditText.text?.toString()?.toInt() ?: 100,
 				countEditText.text?.toString()?.toByte() ?: 1
 			)
-			// TODO: notification?
-			Toast.makeText(requireContext(), "Data obtained!", Toast.LENGTH_SHORT).show()
 		} catch (exc: Throwable) {
 			logger.log("Mock data retrieval failed")
 		}

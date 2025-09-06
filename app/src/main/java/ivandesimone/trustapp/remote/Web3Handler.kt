@@ -140,8 +140,7 @@ class Web3Handler(
 			},
 			onError = { error: Sign.Model.Error ->
 				Debug.e("sendApprove error: $error")
-				// TODO: convert in log
-				notifier.showRequestToast("Error in approval")
+				notifier.showRequestToast("Approval error")
 			}
 		)
 	}
@@ -187,8 +186,7 @@ class Web3Handler(
 			},
 			onError = { error: Sign.Model.Error ->
 				Debug.e("sendTransaction error: ${error.throwable.message}")
-				// TODO: convert in log
-				notifier.showRequestToast("Error in transaction")
+				notifier.showRequestToast("Request error")
 			}
 		)
 	}
@@ -213,12 +211,9 @@ class Web3Handler(
 					if (receipt != null) {
 						return@withContext if (receipt.isStatusOK) {
 							Debug.d("Transaction confirmed")
-							// TODO: log?
 							Pair(true, receipt)
 						} else {
-							// TODO: remove logs
 							Debug.e("Transaction failed. Logs: ${receipt.logs}")
-							// TODO: log?
 							Pair(false, receipt)
 						}
 					} else {
@@ -230,7 +225,6 @@ class Web3Handler(
 				}
 			}
 			Debug.e("Request timed out for tx $txHash")
-			// TODO: log?
 			return@withContext Pair(false, null)
 		}
 
@@ -258,7 +252,6 @@ class Web3Handler(
 					val eventParams = Contract.staticExtractEventParameters(requestCompletedEvent, log)
 					val resultString = eventParams.nonIndexedValues[0] as Utf8String
 					Debug.d("Request COMPLETED: ${resultString.value}")
-					// TODO: log?
 					return Pair(true, resultString.value)
 				}
 
@@ -266,7 +259,6 @@ class Web3Handler(
 					val eventParams = Contract.staticExtractEventParameters(requestFailedEvent, log)
 					val resultString = eventParams.nonIndexedValues[0] as Utf8String
 					Debug.e("Request FAILED: ${resultString.value}")
-					// TODO: log?
 					return Pair(false, resultString.value)
 				}
 			}
