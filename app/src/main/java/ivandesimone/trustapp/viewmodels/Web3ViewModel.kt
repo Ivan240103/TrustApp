@@ -5,95 +5,83 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.walletconnect.sign.client.Sign
 import com.walletconnect.sign.client.SignClient
-import ivandesimone.trustapp.Debug
-import ivandesimone.trustapp.db.MeasureRepository
+import ivandesimone.trustapp.db.MeasurementRepository
 import ivandesimone.trustapp.ui.request.RequestFragment
+import ivandesimone.trustapp.utils.Debug
 import ivandesimone.trustapp.utils.notifications.IRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class EthViewModel(
-	private val repo: MeasureRepository,
+/**
+ * ViewModel to provide data related to MetaMask and the blockchain.
+ * @param repo repository to interact with data sources
+ * @param notifier concrete implementation of IRequest contract
+ */
+class Web3ViewModel(
+	private val repo: MeasurementRepository,
 	private val notifier: IRequest
 ) : ViewModel() {
-	// using StateFlow cause it's more reliable with coroutines
-	private val _uiState = MutableStateFlow<Pair<String?, String?>>(null to null)
-	val uiState: StateFlow<Pair<String?, String?>> = _uiState
+	// using StateFlow because it's more reliable with coroutines
+	private val _connection = MutableStateFlow<Pair<String?, String?>>(null to null)
+	val connection: StateFlow<Pair<String?, String?>> = _connection
 
-	private var zoniaQuery = ""
+	private lateinit var gateQuery: String
 	private lateinit var logger: RequestFragment.Logger
+
+	// flag to trace MetaMask responses
 	private var isWaitingForApproval = false
 
 	init {
-		// check for existing session
+		// check for existing MetaMask session
 		val existingSession = SignClient.getListOfSettledSessions().firstOrNull()
 		existingSession?.let {
 			val sessionTopic = it.topic
 			val fullAccount = it.namespaces["eip155"]?.accounts?.firstOrNull()
 			val userAddress = fullAccount?.split(":")?.get(2)
-
-			Debug.d("Found existing session: $sessionTopic")
-
-			userAddress?.let { it2 ->
-				Debug.d("Restoring session for address: $it2")
-				_uiState.value = sessionTopic to it2
-			}
+			viewModelScope.launch { _connection.value = sessionTopic to userAddress }
+			Debug.d("Found existing session")
 		} ?: Debug.d("No existing session found")
 
 		// set delegate
 		val delegate = object : SignClient.DappDelegate {
 			override fun onSessionApproved(approvedSession: Sign.Model.ApprovedSession) {
-				Debug.d("onSessionApproved called")
 				val sessionTopic = approvedSession.topic
 				var userAddress: String? = null
 
-				try {
-					val fullAccount = approvedSession.namespaces["eip155"]?.accounts?.firstOrNull()
-					fullAccount?.let {
-						userAddress = it.split(":")[2]
-						Debug.d("Successfully parsed address: $userAddress")
-					} ?: Debug.e("Could not find eip155 account in session approval.")
-				} catch (e: Exception) {
-					Debug.e("Error parsing address from session approval $e")
-				}
-
-				userAddress?.let {
-					viewModelScope.launch {
-						_uiState.value = sessionTopic to it
-					}
-				} ?: Debug.e("Failed to get userAddress, UI state will not be updated")
+				val fullAccount = approvedSession.namespaces["eip155"]?.accounts?.firstOrNull()
+				userAddress = fullAccount?.split(":")?.get(2)
+				viewModelScope.launch { _connection.value = sessionTopic to userAddress }
 			}
 
 			override fun onSessionDelete(deletedSession: Sign.Model.DeletedSession) {
 				Debug.d("onSessionDelete called")
-				viewModelScope.launch { _uiState.value = null to null }
+				viewModelScope.launch { _connection.value = null to null }
 			}
 
 			override fun onSessionRequestResponse(response: Sign.Model.SessionRequestResponse) {
 				when (val result = response.result) {
 					is Sign.Model.JsonRpcResponse.JsonRpcResult -> {
 						val txHash = result.result
-						Debug.d("Transaction sent! Hash: $txHash")
+						Debug.d("Transaction sent on Sepolia. Hash: $txHash")
 
-						// check if the hash if for approve
 						if (isWaitingForApproval) {
+							// waiting for approval to spend
 							isWaitingForApproval = false
 
 							viewModelScope.launch {
-								Debug.d("Waiting for approve tx to be confirmed")
 								val (isApproved, receipt) = repo.waitForTransactionReceipt(txHash)
 
 								if (isApproved) {
-									Debug.d("Approval confirmed, now sending the real transaction...")
+									Debug.d("approve confirmed, now sending request transaction...")
 									logger.log("Approve confirmed")
-									repo.sendTransaction(zoniaQuery, uiState)
+									repo.sendTransaction(gateQuery, connection)
 								} else {
-									Debug.e("Approval failed. Aborting...")
+									Debug.e("approve failed. Aborting...")
 									if (receipt == null) {
 										notifier.showRequestNotification(
 											"Approval timed out!",
-											"The approve request has exceeded the time bound"
+											"The approve request has exceeded the time bound."
 										)
 									} else {
 										notifier.showRequestNotification(
@@ -106,11 +94,10 @@ class EthViewModel(
 						} else {
 							// waiting for return data from zonia
 							viewModelScope.launch {
-								Debug.d("Waiting for submitRequest tx to be confirmed")
 								val (isApproved, receipt) = repo.waitForTransactionReceipt(txHash)
 
 								if (isApproved) {
-									Debug.d("submitRequest tx confirmed, now getting result data...")
+									Debug.d("submitRequest confirmed, now getting result data...")
 									// if isApproved is true, receipt cannot be null
 									val (isCompleted, resultString) = repo.extractResultFromLogs(receipt!!)
 									if (isCompleted) {
@@ -118,6 +105,8 @@ class EthViewModel(
 											"Request completed!",
 											"Your data has been successfully retrieved: $resultString"
 										)
+										// TODO: insert data in db
+										// repo.insertMeasurements()
 									} else {
 										notifier.showRequestNotification(
 											"Request failed!",
@@ -129,7 +118,7 @@ class EthViewModel(
 									if (receipt == null) {
 										notifier.showRequestNotification(
 											"Request timed out!",
-											"The data request has exceeded the time bound"
+											"The data request has exceeded the time bound."
 										)
 									} else {
 										notifier.showRequestNotification(
@@ -141,8 +130,9 @@ class EthViewModel(
 							}
 						}
 					}
-					is Sign.Model.JsonRpcResponse.JsonRpcError ->{
-						Debug.d("Transaction failed! Code ${result.code}: ${result.message}")
+
+					is Sign.Model.JsonRpcResponse.JsonRpcError -> {
+						Debug.e("Transaction not sent! ${result.code}: ${result.message}")
 						isWaitingForApproval = false
 					}
 				}
@@ -176,27 +166,41 @@ class EthViewModel(
 		SignClient.setDappDelegate(delegate)
 	}
 
+	/**
+	 * Perform the connection to MetaMask's wallet.
+	 * @param onUriReady callback to use URI
+	 */
 	fun connectWallet(onUriReady: (String) -> Unit) {
-		repo.connectWallet { uri -> onUriReady(uri) }
+		repo.connectWallet(onUriReady)
 	}
 
+	/**
+	 * Request measurements from ZONIA to be inserted in database.
+	 * @param query query for the smart contract to execute
+	 * @param logger logger to display info on UI
+	 */
 	fun requestZoniaMeasures(query: String, logger: RequestFragment.Logger) {
-		zoniaQuery = query
+		this.gateQuery = query
 		this.logger = logger
 		isWaitingForApproval = true
 		viewModelScope.launch {
-			repo.approveZoniaTokens(uiState)
+			repo.approveZoniaTokens(connection)
 		}
 	}
 
 }
 
+/**
+ * Factory to create Web3ViewModel
+ * @param repo repository to interact with data sources
+ * @param notifier concrete implementation of IRequest contract
+ */
 @Suppress("UNCHECKED_CAST")
-class EthViewModelFactory(
-	private val repo: MeasureRepository,
+class Web3ViewModelFactory(
+	private val repo: MeasurementRepository,
 	private val notifier: IRequest
 ) : ViewModelProvider.Factory {
 	override fun <T : ViewModel> create(modelClass: Class<T>): T {
-		return EthViewModel(repo, notifier) as T
+		return Web3ViewModel(repo, notifier) as T
 	}
 }

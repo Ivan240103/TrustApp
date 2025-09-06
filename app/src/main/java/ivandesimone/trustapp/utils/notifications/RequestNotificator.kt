@@ -1,9 +1,8 @@
 package ivandesimone.trustapp.utils.notifications
 
-/*
- * Implement the Contract in the UI Layer: You create a class that implements this interface.
- * This implementation class will live in your app's main module and will use your
- * NotificationHelper to do the actual work.
+/**
+ * Concrete implementation for notification contract to send information related to data requests.
+ * @param notificator implementation of notify operations
  */
 class RequestNotificator(private val notificator: Notificator) : IRequest {
 

@@ -7,19 +7,24 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 import ivandesimone.trustapp.R
-import ivandesimone.trustapp.db.Measure
+import ivandesimone.trustapp.db.Measurement
 import java.text.DateFormat
 
-class MeasureSimpleAdapter(
+/**
+ * Adapter for ListView
+ * @param context context
+ * @param measurements measurements to display
+ */
+class MeasurementSimpleAdapter(
 	private val context: Context,
-	private var measures: List<Measure>
+	private var measurements: List<Measurement>
 ) : BaseAdapter() {
 
-	override fun getCount(): Int = measures.size
+	override fun getCount(): Int = measurements.size
 
-	override fun getItem(p0: Int): Any = measures[p0]
+	override fun getItem(p0: Int): Any = measurements[p0]
 
-	override fun getItemId(p0: Int): Long = measures[p0].id.toLong()
+	override fun getItemId(p0: Int): Long = measurements[p0].id.toLong()
 
 	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 		val v: View = convertView ?:
@@ -30,15 +35,19 @@ class MeasureSimpleAdapter(
 		val rowHumidity: TextView = v.findViewById(R.id.row_humidity)
 
 		val formatter = DateFormat.getDateInstance(DateFormat.SHORT)
-		rowLocation.text = measures[position].location
-		rowDate.text = formatter.format(measures[position].timestamp).substring(0, 5)
-		rowHumidity.text = "${measures[position].humidity} %"
+		rowLocation.text = measurements[position].location
+		rowDate.text = formatter.format(measurements[position].timestamp).substring(0, 5)
+		rowHumidity.text = "${measurements[position].humidity} %"
 
 		return v
 	}
 
-	fun updateMeasures(newMeasures: List<Measure>) {
-		measures = newMeasures
+	/**
+	 * Update measurements to display
+	 * @param newMeasurements new measurements to display
+	 */
+	fun updateMeasurements(newMeasurements: List<Measurement>) {
+		measurements = newMeasurements
 		notifyDataSetChanged()
 	}
 }

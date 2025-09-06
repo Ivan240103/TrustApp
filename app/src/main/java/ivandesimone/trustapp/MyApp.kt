@@ -6,7 +6,11 @@ import com.walletconnect.android.CoreClient
 import com.walletconnect.android.relay.ConnectionType
 import com.walletconnect.sign.client.Sign
 import com.walletconnect.sign.client.SignClient
+import ivandesimone.trustapp.utils.Debug
 
+/**
+ * Custom Application class to perform WalletConnect initialization
+ */
 class MyApp : Application() {
 
 	override fun onCreate() {
@@ -18,8 +22,8 @@ class MyApp : Application() {
 		val appMetaData = Core.Model.AppMetaData(
 			name = "TrustApp",
 			description = "Android application for trusted IoT data",
-			url = "",
-			icons = listOf(),
+			url = "https://ivandesimone.altervista.org/",
+			icons = listOf(), // TODO: add icon
 			redirect = null
 		)
 
@@ -36,9 +40,6 @@ class MyApp : Application() {
 		// init SignClient
 		SignClient.initialize(
 			init = Sign.Params.Init(core = CoreClient),
-			onSuccess = {
-				Debug.d("SignClient initialize success")
-			},
 			onError = { error ->
 				Debug.e("SignClient initialize error: $error")
 			}

@@ -21,20 +21,32 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.Gson
 import ivandesimone.trustapp.R
-import ivandesimone.trustapp.viewmodels.EthViewModel
-import ivandesimone.trustapp.viewmodels.MeasuresViewModel
+import ivandesimone.trustapp.viewmodels.MeasurementsViewModel
+import ivandesimone.trustapp.viewmodels.Web3ViewModel
 
+/**
+ * Request data screen
+ */
 class RequestFragment : Fragment(), OnMapReadyCallback {
 
+	/**
+	 * Logger to display info on UI.
+	 * @param logs TextView to display data
+	 */
 	inner class Logger(val logs: TextView) {
+		/**
+		 * Display data on screen.
+		 * @param str string to display
+		 */
 		fun log(str: String) {
 			logs.text = logs.text.toString() + "\n" + str
 		}
 	}
 
-	private lateinit var ethViewModel: EthViewModel
-	private lateinit var measuresViewModel: MeasuresViewModel
+	private lateinit var web3ViewModel: Web3ViewModel
+	private lateinit var measurementsViewModel: MeasurementsViewModel
 	private lateinit var geocoder: Geocoder
+	private var marker: Marker? = null
 
 	private lateinit var latEditText: EditText
 	private lateinit var longEditText: EditText
@@ -42,20 +54,18 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 	private lateinit var radiusEditText: EditText
 	private lateinit var countEditText: EditText
 	private lateinit var logs: TextView
-	private var marker: Marker? = null
 
 	override fun onCreateView(
 		inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
 	): View? {
-		// Inflate the layout for this fragment
 		return inflater.inflate(R.layout.fragment_request, container, false)
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 
-		ethViewModel = ViewModelProvider(requireActivity())[EthViewModel::class.java]
-		measuresViewModel = ViewModelProvider(requireActivity())[MeasuresViewModel::class.java]
+		web3ViewModel = ViewModelProvider(requireActivity())[Web3ViewModel::class.java]
+		measurementsViewModel = ViewModelProvider(requireActivity())[MeasurementsViewModel::class.java]
 
 		val mapFragment =
 			childFragmentManager.findFragmentById(R.id.request_map_fragment) as SupportMapFragment
@@ -71,21 +81,23 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 		logs = view.findViewById(R.id.request_log)
 
 		val requestZoniaButton: Button = view.findViewById(R.id.request_zonia_button)
-		requestZoniaButton.isEnabled = ethViewModel.uiState.value.second != null
+		requestZoniaButton.isEnabled = web3ViewModel.connection.value.second != null
 		requestZoniaButton.setOnClickListener {
 			logs.text = ""
 			val logger = Logger(logs)
-			requestZoniaMeasures(logger)
+			requestZoniaMeasurements(logger)
 		}
 
-		// TODO: check field to be filled
 		val requestMockButton: Button = view.findViewById(R.id.request_mock_button)
 		requestMockButton.setOnClickListener {
-			requestMockMeasures()
+			logs.text = ""
+			val logger = Logger(logs)
+			requestMockMeasurements(logger)
 		}
 	}
 
 	override fun onMapReady(p0: GoogleMap) {
+		// satellite + locations map
 		p0.mapType = GoogleMap.MAP_TYPE_HYBRID
 		val position = LatLng(44.4896263748,11.3389703108)
 		p0.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 8f))
@@ -103,39 +115,54 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 				locationEditText.text =
 					Editable.Factory().newEditable(locationResult?.get(0)?.locality ?: "Unknown")
 			} catch (exc: Exception) {
-				Toast.makeText(requireContext(), "Impossible to find location name", Toast.LENGTH_SHORT).show()
+				Toast.makeText(
+					requireContext(),
+					"Impossible to find location name",
+					Toast.LENGTH_SHORT
+				).show()
 			}
 		}
 	}
 
-	private fun requestZoniaMeasures(logger: Logger) {
-		// define the query JSON as a raw string literal
+	/**
+	 * Request data from ZONIA.
+	 * @param logger logger to display info on UI
+	 */
+	private fun requestZoniaMeasurements(logger: Logger) {
 		val query = Query(
 			"s4agri:AmbientHumidity",
 			Geo(
 				"Feature",
 				Geometry(
 					"Point",
-					listOf(latEditText.text.toString().toDouble(), longEditText.text.toString().toDouble())
+					listOf(
+						latEditText.text?.toString()?.toDouble() ?: 44.0,
+						longEditText.text?.toString()?.toDouble() ?: 11.0
+					)
 				),
-				Properties(radiusEditText.text.toString().toInt())
+				Properties(radiusEditText.text?.toString()?.toInt() ?: 100)
 			)
 		)
 		val queryJson = Gson().toJson(query)
-		ethViewModel.requestZoniaMeasures(queryJson, logger)
+		web3ViewModel.requestZoniaMeasures(queryJson, logger)
 	}
 
-	private fun requestMockMeasures() {
+	/**
+	 * Request data from the mock data source.
+	 * @param logger logger to display info on UI
+	 */
+	private fun requestMockMeasurements(logger: Logger) {
 		try {
-			measuresViewModel.requestMockMeasures(
+			measurementsViewModel.requestMockMeasurements(
 				"${latEditText.text}:${longEditText.text}",
-				locationEditText.text.toString(),
-				radiusEditText.text.toString().toInt(),
-				countEditText.text.toString().toByte()
+				locationEditText.text?.toString() ?: "Unknown",
+				radiusEditText.text?.toString()?.toInt() ?: 100,
+				countEditText.text?.toString()?.toByte() ?: 1
 			)
+			// TODO: notification?
 			Toast.makeText(requireContext(), "Data obtained!", Toast.LENGTH_SHORT).show()
 		} catch (exc: Throwable) {
-			Toast.makeText(requireContext(), "Mock data retrieval failed", Toast.LENGTH_SHORT).show()
+			logger.log("Mock data retrieval failed")
 		}
 	}
 

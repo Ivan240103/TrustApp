@@ -5,8 +5,8 @@ import com.google.gson.Gson
 import com.walletconnect.android.CoreClient
 import com.walletconnect.sign.client.Sign
 import com.walletconnect.sign.client.SignClient
-import ivandesimone.trustapp.Debug
 import ivandesimone.trustapp.ui.request.ChainParams
+import ivandesimone.trustapp.utils.Debug
 import ivandesimone.trustapp.utils.notifications.IRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -29,6 +29,11 @@ import org.web3j.tx.Contract
 import java.io.IOException
 import java.math.BigInteger
 
+/**
+ * Handler for the remote operations involving MetaMask and the blockchain.
+ * @param preferences reference to default shared preferences
+ * @param notifier concrete implementation of IRequest contract
+ */
 class Web3Handler(
 	private val preferences: SharedPreferences,
 	private val notifier: IRequest
@@ -39,14 +44,24 @@ class Web3Handler(
 		private const val GATE_ADDRESS = "0xbb6849DC5D97Bd55DE9A23B58CD5bBF3Bfdda0FA"
 		private const val ZONIA_TOKEN_ADDRESS = "0x8821aFDa84d71988cf0b570C535FC502720B33DD"
 		private const val RPC_NODE_URL = "https://eth-sepolia.g.alchemy.com/v2/0YwukylbE3vy-oWWK218B"
-		private const val EVENT_COMPLETED = "RequestCompleted"
-		private const val EVENT_FAILED = "RequestFailed"
+		private const val EVENT_COMPLETED_NAME = "RequestCompleted"
+		private const val EVENT_FAILED_NAME = "RequestFailed"
 	}
 
+	/**
+	 * Utility data class for eth transaction
+	 * @param from source sepolia address
+	 * @param to destination sepolia address
+	 * @param data arguments for the transaction
+	 */
 	private data class EthTransaction(val from: String, val to: String, val data: String)
 
 	private val web3j = Web3j.build(HttpService(RPC_NODE_URL))
 
+	/**
+	 * Perform the connection to MetaMask's wallet.
+	 * @param onUriReady callback to use URI
+	 */
 	fun connectWallet(onUriReady: (String) -> Unit) {
 		// TrustApp needs for connection proposal to MetaMask
 		val requiredNamespaces = mapOf(
@@ -64,31 +79,35 @@ class Web3Handler(
 		val pairing = CoreClient.Pairing.create { error ->
 			Debug.e("connectWallet pairing error: $error")
 		}
-		Debug.d("connectWallet pairing: $pairing")
 
 		pairing?.let {
 			SignClient.connect(
 				Sign.Params.Connect(namespaces = requiredNamespaces, pairing = it),
-				onSuccess = { s: String ->
-					Debug.d("SignClient connect success. Pairing return: $s")
-					onUriReady(s)
+				onSuccess = { uri: String ->
+					onUriReady(uri)
 				},
 				onError = { error ->
-					Debug.e("SignClient connect error: $error")
+					Debug.e("connectWallet SignClient connect error: $error")
 				}
 			)
-		} ?: Debug.e("Pairing not initialized, it's null!")
+		} ?: Debug.e("connect wallet error: pairing not initialized")
 	}
 
-	// use inside a coroutine
-	fun sendApprove(amount: BigInteger, uiState: StateFlow<Pair<String?, String?>>, onApproveSent: () -> Unit) {
-		val (sessionTopic, userAddress) = uiState.value
-
-		Debug.d("sendApprove start, sessionTopic: $sessionTopic, userAddress: $userAddress")
+	/**
+	 * Blocking function to send approval to Gate for spending ZONIA tokens.
+	 * @param amount spending cap
+	 * @param connection wallet connection state
+	 * @param onApproveSent callback when the transaction has been sent to MetaMask
+	 */
+	fun sendApprove(
+		amount: BigInteger,
+		connection: StateFlow<Pair<String?, String?>>,
+		onApproveSent: () -> Unit
+	) {
+		val (sessionTopic, userAddress) = connection.value
 
 		if (sessionTopic == null || userAddress == null) {
-			// not connected
-			Debug.e("sendApprove failed because not connected")
+			Debug.e("sendApprove failed because sessionTopic or userAddress is missing")
 			return
 		}
 
@@ -121,20 +140,27 @@ class Web3Handler(
 			},
 			onError = { error: Sign.Model.Error ->
 				Debug.e("sendApprove error: $error")
+				// TODO: convert in log
 				notifier.showRequestToast("Error in approval")
 			}
 		)
 	}
 
-	// use inside a coroutine
-	fun sendTransaction(query: String, uiState: StateFlow<Pair<String?, String?>>, onRequestSent: () -> Unit) {
-		val (sessionTopic, userAddress) = uiState.value
-
-		Debug.d("sendTransaction start, sessionTopic: $sessionTopic, userAddress: $userAddress")
+	/**
+	 * Blocking function to send the request for data to Gate.
+	 * @param query query for the smart contract to execute
+	 * @param connection wallet connection state
+	 * @param onRequestSent callback when the transaction has been sent to MetaMask
+	 */
+	fun sendTransaction(
+		query: String,
+		connection: StateFlow<Pair<String?, String?>>,
+		onRequestSent: () -> Unit
+	) {
+		val (sessionTopic, userAddress) = connection.value
 
 		if (sessionTopic == null || userAddress == null) {
-			// not connected
-			Debug.e("sendTransaction failed because not connected")
+			Debug.e("sendApprove failed because sessionTopic or userAddress is missing")
 			return
 		}
 
@@ -156,20 +182,24 @@ class Web3Handler(
 		SignClient.request(
 			request = requestParams,
 			onSuccess = { pendingRequest: Sign.Model.SentRequest ->
-				// The result (tx hash) will come via a webhook or you can check a block explorer.
-				// The wallet sends the result to the WalletConnect server.
 				Debug.d("sendTransaction success, request ID: ${pendingRequest.requestId}")
 				onRequestSent()
 			},
 			onError = { error: Sign.Model.Error ->
-				Debug.d("sendTransaction error: ${error.throwable.message}")
+				Debug.e("sendTransaction error: ${error.throwable.message}")
+				// TODO: convert in log
 				notifier.showRequestToast("Error in transaction")
 			}
 		)
 	}
 
+	/**
+	 * Blocking function to wait for the transaction to be confirmed by the network.
+	 * @param txHash hash of the transaction to wait
+	 * @return pair <tx confirmed, tx receipt>
+	 */
 	suspend fun waitForTransactionReceipt(txHash: String): Pair<Boolean, TransactionReceipt?> =
-		withContext(Dispatchers.IO){
+		withContext(Dispatchers.IO) {
 			// ask the chain every 10 seconds
 			val pollingInterval = 10000L
 			val timeout = preferences.getString("timeout", null)?.toLong() ?: 300L
@@ -181,16 +211,17 @@ class Web3Handler(
 						web3j.ethGetTransactionReceipt(txHash).send()?.transactionReceipt?.orElse(null)
 
 					if (receipt != null) {
-						Debug.d("Attempt ${i + 1}: receipt found for tx $txHash on block ${receipt.blockNumber}")
 						return@withContext if (receipt.isStatusOK) {
-							Debug.d("Transaction successful")
+							Debug.d("Transaction confirmed")
+							// TODO: log?
 							Pair(true, receipt)
 						} else {
-							Debug.e("Transaction failed. Status ${receipt.revertReason}")
+							// TODO: remove logs
+							Debug.e("Transaction failed. Logs: ${receipt.logs}")
+							// TODO: log?
 							Pair(false, receipt)
 						}
 					} else {
-						Debug.d("Still waiting for receipt, attempt ${i + 1}")
 						delay(pollingInterval)
 					}
 				} catch (e: IOException) {
@@ -198,27 +229,25 @@ class Web3Handler(
 					delay(pollingInterval)
 				}
 			}
-			Debug.e("Data request timed out for tx $txHash")
+			Debug.e("Request timed out for tx $txHash")
+			// TODO: log?
 			return@withContext Pair(false, null)
 		}
 
+	/**
+	 * Retrieve the results of the operation from the receipt.
+	 * @param receipt receipt of the confirmed transaction
+	 * @return pair <is successful, result>
+	 */
 	fun extractResultFromLogs(receipt: TransactionReceipt): Pair<Boolean, String> {
-		Debug.d("Scanning receipt for result string ${receipt.transactionHash}")
-
-		val requestCompletedEvent = Event(EVENT_COMPLETED,
-			listOf(
-				object : TypeReference<Bytes32>(true) {},
-				object : TypeReference<Utf8String>(false) {}
-			)
+		val parameters = listOf(
+			object : TypeReference<Bytes32>(true) {},
+			object : TypeReference<Utf8String>(false) {}
 		)
+
+		val requestCompletedEvent = Event(EVENT_COMPLETED_NAME, parameters)
 		val requestCompletedSignature = EventEncoder.encode(requestCompletedEvent)
-
-		val requestFailedEvent = Event(EVENT_FAILED,
-			listOf(
-				object : TypeReference<Bytes32>(true) {},
-				object : TypeReference<Utf8String>(false) {}
-			)
-		)
+		val requestFailedEvent = Event(EVENT_FAILED_NAME, parameters)
 		val requestFailedSignature = EventEncoder.encode(requestFailedEvent)
 
 		receipt.logs.forEach { log ->
@@ -226,25 +255,31 @@ class Web3Handler(
 
 			when (eventSignature) {
 				requestCompletedSignature -> {
-					val eventValues = Contract.staticExtractEventParameters(requestCompletedEvent, log)
-					val requestId = eventValues.indexedValues[0] as Bytes32
-					val resultString = eventValues.nonIndexedValues[0] as Utf8String
+					val eventParams = Contract.staticExtractEventParameters(requestCompletedEvent, log)
+					val resultString = eventParams.nonIndexedValues[0] as Utf8String
 					Debug.d("Request COMPLETED: ${resultString.value}")
+					// TODO: log?
 					return Pair(true, resultString.value)
 				}
+
 				requestFailedSignature -> {
-					val eventValues = Contract.staticExtractEventParameters(requestFailedEvent, log)
-					val requestId = eventValues.indexedValues[0] as Bytes32
-					val resultString = eventValues.nonIndexedValues[0] as Utf8String
+					val eventParams = Contract.staticExtractEventParameters(requestFailedEvent, log)
+					val resultString = eventParams.nonIndexedValues[0] as Utf8String
 					Debug.e("Request FAILED: ${resultString.value}")
+					// TODO: log?
 					return Pair(false, resultString.value)
 				}
 			}
 		}
 
-		return Pair(false, "No event $EVENT_COMPLETED or $EVENT_FAILED was found in logs")
+		return Pair(false, "No event $EVENT_COMPLETED_NAME or $EVENT_FAILED_NAME was found in logs")
 	}
 
+	/**
+	 * Generate transaction data for submitRequest function of Gate.
+	 * @param queryValue query for the smart contract to execute
+	 * @return transaction data encoded
+	 */
 	private fun createTransactionData(queryValue: String): String {
 		val chainParams = ChainParams(25, 25, 25, 25)
 		val chainParamsStr = Gson().toJson(chainParams)

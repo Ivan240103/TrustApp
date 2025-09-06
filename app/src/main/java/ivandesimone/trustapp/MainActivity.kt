@@ -14,20 +14,23 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
-import ivandesimone.trustapp.db.MeasureDatabase
-import ivandesimone.trustapp.db.MeasureRepository
+import ivandesimone.trustapp.db.MeasurementDatabase
+import ivandesimone.trustapp.db.MeasurementRepository
 import ivandesimone.trustapp.utils.notifications.Notificator
 import ivandesimone.trustapp.utils.notifications.RequestNotificator
-import ivandesimone.trustapp.viewmodels.EthViewModel
-import ivandesimone.trustapp.viewmodels.EthViewModelFactory
-import ivandesimone.trustapp.viewmodels.MeasuresViewModel
+import ivandesimone.trustapp.viewmodels.MeasurementsViewModel
 import ivandesimone.trustapp.viewmodels.MeasuresViewModelFactory
+import ivandesimone.trustapp.viewmodels.Web3ViewModel
+import ivandesimone.trustapp.viewmodels.Web3ViewModelFactory
 
+/**
+ * Main (and only) activity
+ */
 class MainActivity : AppCompatActivity() {
 
 	private lateinit var navController: NavController
-	private lateinit var measuresViewModel: MeasuresViewModel
-	private lateinit var ethViewModel: EthViewModel
+	private lateinit var measurementsViewModel: MeasurementsViewModel
+	private lateinit var web3ViewModel: Web3ViewModel
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -42,19 +45,27 @@ class MainActivity : AppCompatActivity() {
 		return navController.navigateUp() || super.onSupportNavigateUp()
 	}
 
+	/**
+	 * Instance the ViewModels with their arguments.
+	 */
 	private fun setupViewModels() {
-		val db = MeasureDatabase.getDatabase(this)
+		val db = MeasurementDatabase.getDatabase(this)
 		val preferences = PreferenceManager.getDefaultSharedPreferences(this)
 		val requestNotificator = getNotifier()
-		val repo = MeasureRepository(db.measureDao(), preferences, requestNotificator)
-		measuresViewModel =
-			ViewModelProvider(this, MeasuresViewModelFactory(repo))[MeasuresViewModel::class.java]
-		ethViewModel = ViewModelProvider(
+		val repo = MeasurementRepository(db.measurementDao(), preferences, requestNotificator)
+		measurementsViewModel = ViewModelProvider(
 			this,
-			EthViewModelFactory(repo, requestNotificator)
-		)[EthViewModel::class.java]
+			MeasuresViewModelFactory(repo)
+		)[MeasurementsViewModel::class.java]
+		web3ViewModel = ViewModelProvider(
+			this,
+			Web3ViewModelFactory(repo, requestNotificator)
+		)[Web3ViewModel::class.java]
 	}
 
+	/**
+	 * Prepare navigation elements.
+	 */
 	private fun setupNavigation() {
 		// find navController
 		val navHostFragment =
@@ -66,7 +77,7 @@ class MainActivity : AppCompatActivity() {
 		bottomNavigation.setupWithNavController(navController)
 
 		// setup toolbar
-		val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+		val toolbar: MaterialToolbar = findViewById(R.id.toolbar)
 		setSupportActionBar(toolbar)
 		val appBarConfiguration =
 			AppBarConfiguration(
@@ -78,26 +89,37 @@ class MainActivity : AppCompatActivity() {
 			)
 		setupActionBarWithNavController(navController, appBarConfiguration)
 
+		// maintain updated highlight on current main fragment
 		navController.addOnDestinationChangedListener { _, destination, _ ->
 			val parent = destination.parent
 			val menuItem = parent?.let {
 				bottomNavigation.menu.findItem(it.id)
 			}
 			menuItem?.let {
-				if (!it.isChecked) it.isChecked = true
+				if (!it.isChecked) {
+					it.isChecked = true
+				}
 			}
 		}
 	}
 
+	/**
+	 * Create notificator for data requests
+	 * @return notificator
+	 */
 	private fun getNotifier(): RequestNotificator {
 		val notificator = Notificator(this, getMetamaskSnack())
 		val requestNotificator = RequestNotificator(notificator)
 		return requestNotificator
 	}
 
+	/**
+	 * Create SnackBar to open MetaMask
+	 * @return SnackBar prepared
+	 */
 	private fun getMetamaskSnack(): Snackbar {
+		// deep link to metamask
 		val intent = Intent(Intent.ACTION_VIEW, "metamask://".toUri())
-		Debug.d("Intent: $intent")
 		val snack = Snackbar.make(
 			findViewById(R.id.main),
 			"Check MetaMask to sign the transaction",

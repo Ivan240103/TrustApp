@@ -16,12 +16,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import ivandesimone.trustapp.R
-import ivandesimone.trustapp.viewmodels.EthViewModel
+import ivandesimone.trustapp.viewmodels.Web3ViewModel
 import kotlinx.coroutines.launch
 
+/**
+ * Configuration and settings screen
+ */
 class ConfigurationFragment : Fragment() {
 
-	private lateinit var ethViewModel: EthViewModel
+	private lateinit var web3ViewModel: Web3ViewModel
 	private lateinit var profileStateInfo: TextView
 	private lateinit var connectWalletButton: Button
 	private lateinit var metamaskInfoContainer: ConstraintLayout
@@ -32,14 +35,13 @@ class ConfigurationFragment : Fragment() {
 		inflater: LayoutInflater, container: ViewGroup?,
 		savedInstanceState: Bundle?
 	): View? {
-		// Inflate the layout for this fragment
 		return inflater.inflate(R.layout.fragment_configuration, container, false)
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 
-		ethViewModel = ViewModelProvider(requireActivity())[EthViewModel::class.java]
+		web3ViewModel = ViewModelProvider(requireActivity())[Web3ViewModel::class.java]
 
 		profileStateInfo = view.findViewById(R.id.profile_state_info)
 		connectWalletButton = view.findViewById(R.id.connect_wallet_button)
@@ -48,14 +50,18 @@ class ConfigurationFragment : Fragment() {
 		addressValue = view.findViewById(R.id.address_value)
 
 		viewLifecycleOwner.lifecycleScope.launch {
-			// start a new coroutine on started until stopped
+			// start a new coroutine on started, until stopped
 			repeatOnLifecycle(Lifecycle.State.STARTED) {
-				// observe the data
-				ethViewModel.uiState.collect { displayProfileState(it)	}
+				// observe the wallet connection state data
+				web3ViewModel.connection.collect { displayProfileState(it)	}
 			}
 		}
 	}
 
+	/**
+	 * Change visibility of wallet connection state.
+	 * @param value connection state
+	 */
 	private fun displayProfileState(value: Pair<String?, String?>) {
 		if (value.first == null || value.second == null) {
 			metamaskInfoContainer.visibility = View.GONE
@@ -71,9 +77,12 @@ class ConfigurationFragment : Fragment() {
 		}
 	}
 
+	/**
+	 * Set listener to connect MetaMask wallet.
+	 */
 	private fun setConnectWalletListener() {
 		connectWalletButton.setOnClickListener {
-			ethViewModel.connectWallet { uri ->
+			web3ViewModel.connectWallet { uri ->
 				// create deeplink to MetaMask
 				val deepLink = "metamask://wc?uri=${Uri.encode(uri)}"
 				val intent = Intent(Intent.ACTION_VIEW, deepLink.toUri())

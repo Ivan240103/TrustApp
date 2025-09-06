@@ -5,7 +5,9 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.FrameLayout
 
-// to intercept touch going to the map
+/**
+ * Custom map layout to intercept touch going to the map
+ */
 class TouchMapFrameLayout @JvmOverloads constructor(
 	context: Context,
 	attrs: AttributeSet? = null

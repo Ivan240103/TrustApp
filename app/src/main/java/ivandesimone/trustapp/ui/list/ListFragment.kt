@@ -14,11 +14,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import ivandesimone.trustapp.R
 import ivandesimone.trustapp.ui.details.DetailsFragment
-import ivandesimone.trustapp.viewmodels.MeasuresViewModel
+import ivandesimone.trustapp.viewmodels.MeasurementsViewModel
 
+/**
+ * Measurements list screen
+ */
 class ListFragment : Fragment() {
 
-	private lateinit var measuresViewModel: MeasuresViewModel
+	private lateinit var measurementsViewModel: MeasurementsViewModel
 	private lateinit var navController: NavController
 
 	override fun onCreateView(
@@ -31,28 +34,32 @@ class ListFragment : Fragment() {
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 
-		measuresViewModel = ViewModelProvider(requireActivity())[MeasuresViewModel::class.java]
+		measurementsViewModel = ViewModelProvider(requireActivity())[MeasurementsViewModel::class.java]
 		navController = findNavController()
 
 		initRecyclerView(view)
 	}
 
+	/**
+	 * Initialize RecyclerView list.
+	 * @param view fragment view
+	 */
 	private fun initRecyclerView(view: View) {
 		val completeListSearch: SearchView = view.findViewById(R.id.complete_list_search)
 		val completeList: RecyclerView = view.findViewById(R.id.complete_list)
-		val adapter = MeasureCompleteAdapter(emptyList()) { measureId: Int ->
-			navigateToDetails(measureId)
+		val adapter = MeasurementCompleteAdapter(emptyList()) { measurementId: Int ->
+			navigateToDetails(measurementId)
 		}
 		completeList.adapter = adapter
 		completeList.layoutManager = LinearLayoutManager(context)
 
-		measuresViewModel.filteredMeasures.observe(viewLifecycleOwner) { newMeasures ->
-			adapter.updateMeasures(newMeasures)
+		measurementsViewModel.filteredMeasurements.observe(viewLifecycleOwner) { newMeasurements ->
+			adapter.updateMeasurements(newMeasurements)
 		}
 
 		completeListSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 			override fun onQueryTextChange(p0: String?): Boolean {
-				measuresViewModel.setSearchQuery(p0 ?: "")
+				measurementsViewModel.setSearchQuery(p0 ?: "")
 				return true
 			}
 
@@ -62,6 +69,10 @@ class ListFragment : Fragment() {
 		})
 	}
 
+	/**
+	 * Navigate to details fragment.
+	 * @param id measurement to see in details id
+	 */
 	private fun navigateToDetails(id: Int) {
 		navController.navigate(
 			R.id.action_listFragment_to_detailsFragment,

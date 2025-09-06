@@ -25,15 +25,18 @@ import com.github.mikephil.charting.data.ScatterDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import ivandesimone.trustapp.R
 import ivandesimone.trustapp.ui.details.DetailsFragment
-import ivandesimone.trustapp.viewmodels.MeasuresViewModel
+import ivandesimone.trustapp.viewmodels.MeasurementsViewModel
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+/**
+ * Dashboard screen
+ */
 class DashboardFragment : Fragment() {
 
-	private lateinit var measuresViewModel: MeasuresViewModel
+	private lateinit var measurementsViewModel: MeasurementsViewModel
 	private lateinit var navController: NavController
 
 	override fun onCreateView(
@@ -45,7 +48,7 @@ class DashboardFragment : Fragment() {
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
-		measuresViewModel = ViewModelProvider(requireActivity())[MeasuresViewModel::class.java]
+		measurementsViewModel = ViewModelProvider(requireActivity())[MeasurementsViewModel::class.java]
 		navController = findNavController()
 
 		initLastHumidity(view)
@@ -53,6 +56,10 @@ class DashboardFragment : Fragment() {
 		initMeasureList(view)
 	}
 
+	/**
+	 * Initialize last humidity UI.
+	 * @param view fragment view
+	 */
 	private fun initLastHumidity(view: View) {
 		val lastHumidityLocation: TextView = view.findViewById(R.id.last_humidity_location)
 		val lastHumidityTimestamp: TextView = view.findViewById(R.id.last_humidity_timestamp)
@@ -60,8 +67,8 @@ class DashboardFragment : Fragment() {
 		val lastHumidityValue: TextView = view.findViewById(R.id.last_humidity_value)
 		val formatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
 
-		measuresViewModel.lastMeasure.observe(viewLifecycleOwner) { measure ->
-			measure?.let {
+		measurementsViewModel.lastMeasurement.observe(viewLifecycleOwner) { m ->
+			m?.let {
 				lastHumidityLocation.text = it.location
 				lastHumidityTimestamp.text = formatter.format(it.timestamp)
 				lastHumidityValue.text = "${it.humidity} %"
@@ -77,17 +84,21 @@ class DashboardFragment : Fragment() {
 		}
 	}
 
+	/**
+	 * Initialize scatter chart.
+	 * @param view fragment view
+	 */
 	private fun initScatterChart(view: View) {
 		val chart: ScatterChart = view.findViewById(R.id.scatter_chart)
 
-		measuresViewModel.allMeasures.observe(viewLifecycleOwner) { newMeasures ->
+		measurementsViewModel.allMeasurements.observe(viewLifecycleOwner) { newMeasurements ->
 			val dataSets = mutableListOf<ScatterDataSet>()
-			val grouped = newMeasures.groupBy { it.location }
+			val grouped = newMeasurements.groupBy { it.location }
 			var colorIndex = 0
 
-			for((location, measuresAtLocation) in grouped) {
-				val entries = measuresAtLocation.map { measure ->
-					Entry(measure.timestamp.time.toFloat(), measure.humidity)
+			for((location, measurementsAtLocation) in grouped) {
+				val entries = measurementsAtLocation.map { m ->
+					Entry(m.timestamp.time.toFloat(), m.humidity)
 				}
 				val dataSet = ScatterDataSet(entries, location)
 				dataSet.apply {
@@ -130,12 +141,21 @@ class DashboardFragment : Fragment() {
 		}
 	}
 
+	/**
+	 * Generate colors for chart.
+	 * @param index index of color
+	 * @return color representation
+	 */
 	private fun generateColor(index: Int): Int {
-		// Generate distinct colors in HSV space
-		val hue = (index * 40f) % 360 // rotate hue for each location
+		// generate distinct colors in HSV space, rotating hue for each location
+		val hue = (index * 40f) % 360
 		return Color.HSVToColor(floatArrayOf(hue, 0.8f, 0.9f))
 	}
 
+	/**
+	 * Init ListView.
+	 * @param view fragment view
+	 */
 	@SuppressLint("ClickableViewAccessibility")
 	private fun initMeasureList(view: View) {
 		val cardListHumidity: CardView = view.findViewById(R.id.card_list_humidity)
@@ -144,13 +164,13 @@ class DashboardFragment : Fragment() {
 		}
 
 		val listHumidity: ListView = view.findViewById(R.id.list_humidity)
-		val adapter = MeasureSimpleAdapter(
+		val adapter = MeasurementSimpleAdapter(
 			requireContext(),
-			measuresViewModel.lastTenMeasures.value ?: listOf()
+			measurementsViewModel.latestMeasurements.value ?: listOf()
 		)
 		listHumidity.adapter = adapter
 		listHumidity.setOnItemClickListener { _, _, i, _ ->
-			measuresViewModel.lastTenMeasures.value?.get(i)?.let {
+			measurementsViewModel.latestMeasurements.value?.get(i)?.let {
 				navController.navigate(
 					R.id.action_dashboardFragment_to_detailsFragment,
 					bundleOf(DetailsFragment.DETAILS_ID to it.id)
@@ -170,8 +190,8 @@ class DashboardFragment : Fragment() {
 			false
 		}
 
-		measuresViewModel.lastTenMeasures.observe(viewLifecycleOwner) { newMeasures ->
-			adapter.updateMeasures(newMeasures)
+		measurementsViewModel.latestMeasurements.observe(viewLifecycleOwner) { newMeasures ->
+			adapter.updateMeasurements(newMeasures)
 		}
 	}
 

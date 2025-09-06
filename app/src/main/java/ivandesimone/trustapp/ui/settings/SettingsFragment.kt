@@ -9,6 +9,9 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import ivandesimone.trustapp.R
 
+/**
+ * Settings screen
+ */
 class SettingsFragment : PreferenceFragmentCompat() {
 
 	private var notificationSwitch: SwitchPreferenceCompat? = null
