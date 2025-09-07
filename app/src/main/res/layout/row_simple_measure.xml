@@ -3,21 +3,21 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:orientation="horizontal"
-	android:padding="16dp">
+	android:padding="@dimen/default_padding">
 
 	<TextView
 		android:id="@+id/row_date"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="2"
-		android:text="dd/MM" />
+		android:text="@string/date_placeholder" />
 
 	<TextView
 		android:id="@+id/row_location"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="4"
-		android:text="undefined" />
+		android:text="@string/location_placeholder" />
 
 	<TextView
 		android:id="@+id/row_humidity"
@@ -25,6 +25,6 @@
 		android:layout_height="wrap_content"
 		android:layout_weight="2"
 		android:gravity="center"
-		android:text="42.42 %" />
+		android:text="@string/humidity_placeholder" />
 
 </LinearLayout>

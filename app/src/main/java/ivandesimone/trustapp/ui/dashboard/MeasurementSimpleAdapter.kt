@@ -8,7 +8,8 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import ivandesimone.trustapp.R
 import ivandesimone.trustapp.db.Measurement
-import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 /**
  * Adapter for ListView
@@ -34,7 +35,7 @@ class MeasurementSimpleAdapter(
 		val rowDate: TextView = v.findViewById(R.id.row_date)
 		val rowHumidity: TextView = v.findViewById(R.id.row_humidity)
 
-		val formatter = DateFormat.getDateInstance(DateFormat.SHORT)
+		val formatter = SimpleDateFormat("dd/MM", Locale.ITALY)
 		rowLocation.text = measurements[position].location
 		rowDate.text = formatter.format(measurements[position].timestamp).substring(0, 5)
 		rowHumidity.text = "${measurements[position].humidity} %"

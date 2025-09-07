@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
@@ -26,7 +27,6 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import ivandesimone.trustapp.R
 import ivandesimone.trustapp.ui.details.DetailsFragment
 import ivandesimone.trustapp.viewmodels.MeasurementsViewModel
-import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -61,17 +61,21 @@ class DashboardFragment : Fragment() {
 	 * @param view fragment view
 	 */
 	private fun initLastHumidity(view: View) {
+		val noData: TextView = view.findViewById(R.id.dashboard_no_data)
+		val lastHumidity: LinearLayout = view.findViewById(R.id.last_humidity)
 		val lastHumidityLocation: TextView = view.findViewById(R.id.last_humidity_location)
 		val lastHumidityTimestamp: TextView = view.findViewById(R.id.last_humidity_timestamp)
 		val lastHumidityIcon: ImageView = view.findViewById(R.id.last_humidity_icon)
 		val lastHumidityValue: TextView = view.findViewById(R.id.last_humidity_value)
-		val formatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
+		val formatter = SimpleDateFormat("dd MMM yyyy - HH:mm", Locale.ITALY)
 
 		measurementsViewModel.lastMeasurement.observe(viewLifecycleOwner) { m ->
 			m?.let {
 				lastHumidityLocation.text = it.location
 				lastHumidityTimestamp.text = formatter.format(it.timestamp)
 				lastHumidityValue.text = "${it.humidity} %"
+				noData.visibility = View.GONE
+				lastHumidity.visibility = View.VISIBLE
 
 				// linear interpolation to scale image from 1x to 2.4x
 				val scale = 1f + (it.humidity - 1) / 99f * 1.4f

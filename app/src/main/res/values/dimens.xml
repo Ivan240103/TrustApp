@@ -11,4 +11,15 @@
 	<dimen name="label">14sp</dimen>
 	<dimen name="log">12sp</dimen>
 	<dimen name="wallet_state">16sp</dimen>
+	<dimen name="complete_row_title">18sp</dimen>
+	<dimen name="complete_row_timestamp">15sp</dimen>
+	<dimen name="complete_row_humidity">16sp</dimen>
+	<dimen name="list_card_bottom_margin">12dp</dimen>
+	<dimen name="location_title">22sp</dimen>
+	<dimen name="humidity_value">17sp</dimen>
+	<dimen name="default_padding">16dp</dimen>
+	<dimen name="dashboard_humidity">15sp</dimen>
+	<dimen name="chart_height">250dp</dimen>
+	<dimen name="extra_big_margin">48dp</dimen>
+	<dimen name="list_card_height">250dp</dimen>
 </resources>

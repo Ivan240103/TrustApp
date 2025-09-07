@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	android:orientation="vertical"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:layout_margin="@dimen/screen_margin"
+	android:orientation="vertical"
 	tools:context=".ui.configuration.ConfigurationFragment">
 
 	<androidx.constraintlayout.widget.ConstraintLayout
@@ -18,10 +18,11 @@
 			android:id="@+id/metamask_img"
 			android:layout_width="@dimen/metamask_img"
 			android:layout_height="@dimen/metamask_img"
-			android:src="@drawable/metamask"
+			android:layout_marginStart="@dimen/default_margin"
 			android:contentDescription="@string/metamask_logo_description"
-			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintStart_toStartOf="parent"/>
+			android:src="@drawable/metamask"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
 
 		<TextView
 			android:id="@+id/wallet_connected_info"
@@ -30,47 +31,46 @@
 			android:gravity="center"
 			android:text="@string/wallet_connected"
 			android:textSize="@dimen/wallet_state"
-			app:layout_constraintTop_toTopOf="@id/metamask_img"
-			app:layout_constraintStart_toEndOf="@id/metamask_img"
+			app:layout_constraintBottom_toBottomOf="@id/metamask_img"
 			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintBottom_toBottomOf="@id/metamask_img"/>
+			app:layout_constraintStart_toEndOf="@id/metamask_img"
+			app:layout_constraintTop_toTopOf="@id/metamask_img" />
 
 		<TextView
 			android:id="@+id/session_topic_label"
 			style="@style/label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/session_topic"
 			android:layout_marginTop="@dimen/medium_margin"
-			app:layout_constraintTop_toBottomOf="@id/metamask_img"
+			android:text="@string/session_topic"
 			app:layout_constraintStart_toStartOf="parent"
-			/>
+			app:layout_constraintTop_toBottomOf="@id/metamask_img" />
 
 		<TextView
 			android:id="@+id/session_topic_value"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="@dimen/small_margin"
-			app:layout_constraintTop_toBottomOf="@id/session_topic_label"
-			app:layout_constraintStart_toStartOf="@id/session_topic_label"/>
+			app:layout_constraintStart_toStartOf="@id/session_topic_label"
+			app:layout_constraintTop_toBottomOf="@id/session_topic_label" />
 
 		<TextView
 			android:id="@+id/address_label"
 			style="@style/label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/sepolia_address"
 			android:layout_marginTop="@dimen/default_margin"
-			app:layout_constraintTop_toBottomOf="@id/session_topic_value"
-			app:layout_constraintStart_toStartOf="parent"/>
+			android:text="@string/sepolia_address"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/session_topic_value" />
 
 		<TextView
 			android:id="@+id/address_value"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="@dimen/small_margin"
-			app:layout_constraintTop_toBottomOf="@id/address_label"
-			app:layout_constraintStart_toStartOf="@id/address_label"/>
+			app:layout_constraintStart_toStartOf="@id/address_label"
+			app:layout_constraintTop_toBottomOf="@id/address_label" />
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -79,17 +79,17 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
-		android:textSize="@dimen/wallet_state"
 		android:layout_marginTop="@dimen/medium_margin"
-		android:text="@string/wallet_not_connected" />
+		android:text="@string/wallet_not_connected"
+		android:textSize="@dimen/wallet_state" />
 
 	<Button
 		android:id="@+id/connect_wallet_button"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:layout_marginHorizontal="@dimen/default_margin"
 		android:layout_marginTop="@dimen/medium_margin"
 		android:backgroundTint="@color/metamask_orange"
-		android:layout_marginHorizontal="@dimen/default_margin"
 		android:text="@string/connect_metamask" />
 
 	<androidx.fragment.app.FragmentContainerView

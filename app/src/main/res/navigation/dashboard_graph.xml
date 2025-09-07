@@ -8,7 +8,7 @@
 	<fragment
 		android:id="@+id/dashboard_fragment"
 		android:name="ivandesimone.trustapp.ui.dashboard.DashboardFragment"
-		android:label="Dashboard"
+		android:label="@string/dashboard_label"
 		tools:layout="@layout/fragment_dashboard">
 		<action
 			android:id="@+id/action_dashboardFragment_to_listFragment"
@@ -21,7 +21,7 @@
 	<fragment
 		android:id="@+id/list_fragment"
 		android:name="ivandesimone.trustapp.ui.list.ListFragment"
-		android:label="Measures list"
+		android:label="@string/list_label"
 		tools:layout="@layout/fragment_list">
 		<action
 			android:id="@+id/action_listFragment_to_detailsFragment"
@@ -31,7 +31,7 @@
 	<fragment
 		android:id="@+id/details_fragment"
 		android:name="ivandesimone.trustapp.ui.details.DetailsFragment"
-		android:label="Measure details"
+		android:label="@string/details_label"
 		tools:layout="@layout/fragment_details" />
 
 </navigation>

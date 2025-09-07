@@ -8,7 +8,7 @@
 	<fragment
 		android:id="@+id/request_fragment"
 		android:name="ivandesimone.trustapp.ui.request.RequestFragment"
-		android:label="Request data"
+		android:label="@string/request_label"
 		tools:layout="@layout/fragment_request" />
 
 </navigation>

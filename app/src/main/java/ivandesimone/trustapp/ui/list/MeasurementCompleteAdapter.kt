@@ -5,7 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import ivandesimone.trustapp.R
 import ivandesimone.trustapp.db.Measurement
-import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 /**
  * Adapter for RecyclerView
@@ -33,7 +34,7 @@ class MeasurementCompleteAdapter(
 
 	override fun onBindViewHolder(holder: MeasurementCompleteViewHolder, position: Int) {
 		val measurement = measurements[position]
-		val formatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
+		val formatter = SimpleDateFormat("dd MMM yyyy - HH:mm", Locale.ITALY)
 		holder.apply {
 			rowLocation.text = measurement.location
 			rowTimestamp.text = formatter.format(measurement.timestamp)

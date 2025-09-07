@@ -20,4 +20,22 @@
 	<string name="sepolia_address">Sepolia address</string>
 	<string name="wallet_not_connected">You haven\'t connected any wallet yet</string>
 	<string name="connect_metamask">Connect MetaMask wallet</string>
+	<string name="water_drop">Water drop</string>
+	<string name="timestamp_placeholder">24 Jan 2003 – 21:15</string>
+	<string name="humidity_placeholder">42.42 %</string>
+	<string name="search_hint">Search location</string>
+	<string name="request_label">Request data</string>
+	<string name="dashboard_label">Dashboard</string>
+	<string name="list_label">Measurements list</string>
+	<string name="details_label">Measurement details</string>
+	<string name="configuration_label">Configuration</string>
+	<string name="menu_dashboard">Dashboard</string>
+	<string name="menu_request">Request</string>
+	<string name="menu_configuration">Configuration</string>
+	<string name="delete_measurement">Delete measurement</string>
+	<string name="date_placeholder">24/01</string>
+	<string name="last_measurement_label">Last humidity measurement retrieved</string>
+	<string name="chart_label">Measurements chart</string>
+	<string name="dashboard_list_label">Latest retrieved data</string>
+	<string name="no_data">You have not requested any data yet</string>
 </resources>

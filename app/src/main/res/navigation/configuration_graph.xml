@@ -8,7 +8,7 @@
 	<fragment
 		android:id="@+id/configuration_fragment"
 		android:name="ivandesimone.trustapp.ui.configuration.ConfigurationFragment"
-		android:label="Configuration"
+		android:label="@string/configuration_label"
 		tools:layout="@layout/fragment_configuration" />
 
 </navigation>

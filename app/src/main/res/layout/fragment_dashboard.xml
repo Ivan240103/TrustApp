@@ -3,71 +3,106 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:scrollbars="none"
 	tools:context=".ui.dashboard.DashboardFragment">
 
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_margin="16dp"
+		android:layout_margin="@dimen/default_margin"
 		android:gravity="center"
 		android:orientation="vertical">
 
 		<TextView
 			android:id="@+id/last_humidity_title"
+			style="@style/label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="Last humidity measure retrieved" />
+			android:text="@string/last_measurement_label" />
+
+		<LinearLayout
+			android:id="@+id/last_humidity"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/default_margin"
+			android:gravity="center"
+			android:orientation="vertical"
+			android:visibility="gone">
+
+			<TextView
+				android:id="@+id/last_humidity_location"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/location_placeholder"
+				android:textSize="@dimen/complete_row_title"
+				android:textStyle="bold" />
+
+			<TextView
+				android:id="@+id/last_humidity_timestamp"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/small_margin"
+				android:text="@string/timestamp_placeholder" />
+
+			<ImageView
+				android:id="@+id/last_humidity_icon"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/default_margin"
+				android:contentDescription="@string/water_drop"
+				android:src="@drawable/ic_water_drop" />
+
+			<TextView
+				android:id="@+id/last_humidity_value"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/small_margin"
+				android:text="@string/humidity_placeholder"
+				android:textSize="@dimen/dashboard_humidity" />
+		</LinearLayout>
 
 		<TextView
-			android:id="@+id/last_humidity_location"
+			android:id="@+id/dashboard_no_data"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="12dp"
-			android:text="undefined"
-			android:textSize="18sp" />
-
-		<TextView
-			android:id="@+id/last_humidity_timestamp"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="8dp"
-			android:text="dd-MM-yyyyThh:mm:ss" />
-
-		<ImageView
-			android:id="@+id/last_humidity_icon"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="12dp"
-			android:contentDescription="Water drop"
-			android:src="@drawable/ic_water_drop" />
-
-		<TextView
-			android:id="@+id/last_humidity_value"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="8dp"
-			android:text="42.42 %" />
+			android:layout_marginTop="@dimen/default_margin"
+			android:text="@string/no_data" />
 
 		<androidx.cardview.widget.CardView
 			android:id="@+id/card_line_chart"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="16dp">
+			android:layout_marginTop="@dimen/big_margin">
 
-			<com.github.mikephil.charting.charts.ScatterChart
-				android:id="@+id/scatter_chart"
+			<LinearLayout
 				android:layout_width="match_parent"
-				android:layout_height="300dp"
-				android:layout_margin="16dp" />
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
 
+				<TextView
+					android:id="@+id/scatter_chart_label"
+					style="@style/label"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginStart="@dimen/default_margin"
+					android:layout_marginTop="@dimen/default_margin"
+					android:text="@string/chart_label" />
+
+				<com.github.mikephil.charting.charts.ScatterChart
+					android:id="@+id/scatter_chart"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/chart_height"
+					android:layout_marginHorizontal="@dimen/default_margin"
+					android:layout_marginVertical="@dimen/medium_margin" />
+			</LinearLayout>
 		</androidx.cardview.widget.CardView>
 
 		<androidx.cardview.widget.CardView
 			android:id="@+id/card_list_humidity"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="16dp"
-			android:layout_marginBottom="48dp"
+			android:layout_marginTop="@dimen/big_margin"
+			android:layout_marginBottom="@dimen/extra_big_margin"
 			android:clickable="true"
 			android:descendantFocusability="blocksDescendants"
 			android:focusable="true"
@@ -75,23 +110,24 @@
 
 			<LinearLayout
 				android:layout_width="match_parent"
-				android:layout_height="240dp"
+				android:layout_height="@dimen/list_card_height"
 				android:orientation="vertical">
 
 				<TextView
-					android:id="@+id/list_humidity_subtitle"
+					android:id="@+id/list_humidity_label"
+					style="@style/label"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_marginStart="8dp"
-					android:layout_marginTop="8dp"
-					android:text="Last 10 retrieved data"
-					android:textSize="15sp" />
+					android:layout_marginStart="@dimen/default_margin"
+					android:layout_marginTop="@dimen/default_margin"
+					android:text="@string/dashboard_list_label" />
 
 				<ListView
 					android:id="@+id/list_humidity"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:layout_margin="8dp" />
+					android:layout_margin="@dimen/small_margin"
+					tools:ignore="NestedScrolling" />
 			</LinearLayout>
 		</androidx.cardview.widget.CardView>
 

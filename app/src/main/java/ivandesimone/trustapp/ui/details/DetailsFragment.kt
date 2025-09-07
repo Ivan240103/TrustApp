@@ -24,7 +24,8 @@ import ivandesimone.trustapp.db.Measurement
 import ivandesimone.trustapp.viewmodels.MeasurementsViewModel
 import kotlinx.coroutines.launch
 import java.math.RoundingMode
-import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 /**
  * Details screen
@@ -102,7 +103,7 @@ class DetailsFragment : Fragment(), OnMapReadyCallback {
 		val detailsTimestamp: TextView = view.findViewById(R.id.details_timestamp)
 		val detailsHumidity: TextView = view.findViewById(R.id.details_humidity)
 		val detailsIcon: ImageView = view.findViewById(R.id.details_icon)
-		val formatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
+		val formatter = SimpleDateFormat("dd MMM yyyy - HH:mm", Locale.ITALY)
 
 		detailsLocation.text = detailedMeasurement.location
 		detailsTimestamp.text = formatter.format(detailedMeasurement.timestamp)
@@ -141,8 +142,9 @@ class DetailsFragment : Fragment(), OnMapReadyCallback {
 				CircleOptions()
 					.center(position)
 					.radius(detailedMeasurement.radius.toDouble())
-					.strokeColor(resources.getColor(R.color.blue, null))
-					.fillColor(resources.getColor(R.color.blue_transparent, null))
+					.strokeColor(resources.getColor(R.color.water, null))
+					.strokeWidth(4f)
+					.fillColor(resources.getColor(R.color.water_transparent, null))
 			)
 		}
 	}

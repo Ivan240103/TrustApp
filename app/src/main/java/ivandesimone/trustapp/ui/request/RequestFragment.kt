@@ -23,6 +23,7 @@ import com.google.gson.Gson
 import ivandesimone.trustapp.R
 import ivandesimone.trustapp.viewmodels.MeasurementsViewModel
 import ivandesimone.trustapp.viewmodels.Web3ViewModel
+import java.math.RoundingMode
 
 /**
  * Request data screen
@@ -108,8 +109,12 @@ class RequestFragment : Fragment(), OnMapReadyCallback {
 			} ?: {
 				marker = p0.addMarker(MarkerOptions().position(pos))
 			}
-			latEditText.text = Editable.Factory().newEditable(pos.latitude.toString())
-			longEditText.text = Editable.Factory().newEditable(pos.longitude.toString())
+			latEditText.text = Editable.Factory().newEditable(
+				pos.latitude.toBigDecimal().setScale(6, RoundingMode.HALF_EVEN).toString()
+			)
+			longEditText.text = Editable.Factory().newEditable(
+				pos.longitude.toBigDecimal().setScale(6, RoundingMode.HALF_EVEN).toString()
+			)
 			try {
 				val locationResult = geocoder.getFromLocation(pos.latitude, pos.longitude, 1)
 				locationEditText.text =

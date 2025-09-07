@@ -4,13 +4,15 @@
 	<item
 		android:id="@+id/dashboard_graph"
 		android:icon="@drawable/ic_dashboard"
-		android:title="Dashboard" />
+		android:title="@string/menu_dashboard" />
+
 	<item
 		android:id="@+id/request_graph"
 		android:icon="@drawable/ic_download"
-		android:title="Request" />
+		android:title="@string/menu_request" />
+
 	<item
 		android:id="@+id/configuration_graph"
 		android:icon="@drawable/ic_settings"
-		android:title="Configuration" />
+		android:title="@string/menu_configuration" />
 </menu>

@@ -3,22 +3,21 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:layout_marginStart="8dp"
-	android:layout_marginTop="8dp"
-	android:layout_marginEnd="8dp"
+	android:layout_marginHorizontal="@dimen/small_margin"
+	android:layout_marginBottom="@dimen/list_card_bottom_margin"
 	android:clickable="true"
 	android:foreground="?attr/selectableItemBackground">
 
 	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_margin="16dp">
+		android:layout_margin="@dimen/default_margin">
 
 		<ImageView
 			android:id="@+id/complete_row_icon"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:contentDescription="Water drop"
+			android:contentDescription="@string/water_drop"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
@@ -28,9 +27,9 @@
 			android:id="@+id/complete_row_location"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginStart="16dp"
-			android:text="undefined"
-			android:textSize="18sp"
+			android:layout_marginStart="@dimen/default_margin"
+			android:text="@string/location_placeholder"
+			android:textSize="@dimen/complete_row_title"
 			app:layout_constraintStart_toEndOf="@id/complete_row_icon"
 			app:layout_constraintTop_toTopOf="parent" />
 
@@ -38,8 +37,8 @@
 			android:id="@+id/complete_row_timestamp"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="dd-MM-yyyyThh:mm:ss"
-			android:textSize="15sp"
+			android:text="@string/timestamp_placeholder"
+			android:textSize="@dimen/complete_row_timestamp"
 			app:layout_constraintStart_toStartOf="@id/complete_row_location"
 			app:layout_constraintTop_toBottomOf="@id/complete_row_location" />
 
@@ -47,9 +46,9 @@
 			android:id="@+id/complete_row_humidity"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginEnd="16dp"
-			android:text="42.42 %"
-			android:textSize="16sp"
+			android:layout_marginEnd="@dimen/default_margin"
+			android:text="@string/humidity_placeholder"
+			android:textSize="@dimen/complete_row_humidity"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintTop_toTopOf="parent" />
