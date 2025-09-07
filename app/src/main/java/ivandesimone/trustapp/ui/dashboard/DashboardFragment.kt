@@ -70,20 +70,23 @@ class DashboardFragment : Fragment() {
 		val formatter = SimpleDateFormat("dd MMM yyyy - HH:mm", Locale.ITALY)
 
 		measurementsViewModel.lastMeasurement.observe(viewLifecycleOwner) { m ->
-			m?.let {
-				lastHumidityLocation.text = it.location
-				lastHumidityTimestamp.text = formatter.format(it.timestamp)
-				lastHumidityValue.text = "${it.humidity} %"
+			if (m != null) {
+				lastHumidityLocation.text = m.location
+				lastHumidityTimestamp.text = formatter.format(m.timestamp)
+				lastHumidityValue.text = "${m.humidity} %"
 				noData.visibility = View.GONE
 				lastHumidity.visibility = View.VISIBLE
 
 				// linear interpolation to scale image from 1x to 2.4x
-				val scale = 1f + (it.humidity - 1) / 99f * 1.4f
+				val scale = 1f + (m.humidity - 1) / 99f * 1.4f
 				val newSize = (120 * scale).toInt()
 				val params = lastHumidityIcon.layoutParams
 				params.width = newSize
 				params.height = newSize
 				lastHumidityIcon.layoutParams = params
+			} else {
+				lastHumidity.visibility = View.GONE
+				noData.visibility = View.VISIBLE
 			}
 		}
 	}
@@ -95,12 +98,14 @@ class DashboardFragment : Fragment() {
 	private fun initScatterChart(view: View) {
 		val chart: ScatterChart = view.findViewById(R.id.scatter_chart)
 
+		val formatter = SimpleDateFormat("dd/MM/yy", Locale.ITALY)
+
 		measurementsViewModel.allMeasurements.observe(viewLifecycleOwner) { newMeasurements ->
 			val dataSets = mutableListOf<ScatterDataSet>()
 			val grouped = newMeasurements.groupBy { it.location }
 			var colorIndex = 0
 
-			for((location, measurementsAtLocation) in grouped) {
+			for ((location, measurementsAtLocation) in grouped) {
 				val entries = measurementsAtLocation.map { m ->
 					Entry(m.timestamp.time.toFloat(), m.humidity)
 				}
@@ -117,10 +122,9 @@ class DashboardFragment : Fragment() {
 			val scatterData = ScatterData(dataSets as List<ScatterDataSet>?)
 			chart.data = scatterData
 
-			val formatter = SimpleDateFormat("dd/MM/yy", Locale.ITALY)
 			chart.apply {
 				xAxis.apply {
-					valueFormatter = object: ValueFormatter() {
+					valueFormatter = object : ValueFormatter() {
 						override fun getAxisLabel(value: Float, axis: AxisBase?): String {
 							return formatter.format(Date(value.toLong()))
 						}
@@ -187,6 +191,7 @@ class DashboardFragment : Fragment() {
 				MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
 					v.parent.requestDisallowInterceptTouchEvent(true)
 				}
+
 				MotionEvent.ACTION_UP -> {
 					v.parent.requestDisallowInterceptTouchEvent(false)
 				}

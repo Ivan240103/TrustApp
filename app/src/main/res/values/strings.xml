@@ -1,39 +1,38 @@
 <resources>
-	<string name="app_name">TrustApp</string>
-	<string name="hello_blank_fragment">Hello blank fragment</string>
+	<string name="app_name" translatable="false">TrustApp</string>
 	<string name="request_map_label">Select your area of interest</string>
 	<string name="latitude">Latitude</string>
-	<string name="lat_placeholder">44.489626</string>
+	<string name="lat_placeholder" translatable="false">44.489626</string>
 	<string name="longitude">Longitude</string>
-	<string name="long_placeholder">11.338970</string>
+	<string name="long_placeholder" translatable="false">11.338970</string>
 	<string name="location">Location name</string>
-	<string name="location_placeholder">Bologna</string>
+	<string name="location_placeholder" translatable="false">Bologna</string>
 	<string name="radius">Area\'s radius [m]</string>
-	<string name="radius_placeholder">500</string>
+	<string name="radius_placeholder" translatable="false">500</string>
 	<string name="n_measurement">Number of measurements desired</string>
-	<string name="count_placeholder">1</string>
+	<string name="count_placeholder" translatable="false">1</string>
 	<string name="request_zonia">Request data from ZONIA</string>
 	<string name="request_mock">Request mock data</string>
 	<string name="metamask_logo_description">MetaMask fox logo</string>
 	<string name="wallet_connected">Your MetaMask wallet\nis connected!</string>
-	<string name="session_topic">Session topic</string>
-	<string name="sepolia_address">Sepolia address</string>
+	<string name="session_topic" translatable="false">Session topic</string>
+	<string name="sepolia_address" translatable="false">Sepolia address</string>
 	<string name="wallet_not_connected">You haven\'t connected any wallet yet</string>
 	<string name="connect_metamask">Connect MetaMask wallet</string>
 	<string name="water_drop">Water drop</string>
-	<string name="timestamp_placeholder">24 Jan 2003 – 21:15</string>
-	<string name="humidity_placeholder">42.42 %</string>
+	<string name="timestamp_placeholder" translatable="false">24 Jan 2003 – 21:15</string>
+	<string name="humidity_placeholder" translatable="false">42.42 %</string>
 	<string name="search_hint">Search location</string>
 	<string name="request_label">Request data</string>
-	<string name="dashboard_label">Dashboard</string>
+	<string name="dashboard_label" translatable="false">Dashboard</string>
 	<string name="list_label">Measurements list</string>
 	<string name="details_label">Measurement details</string>
 	<string name="configuration_label">Configuration</string>
-	<string name="menu_dashboard">Dashboard</string>
+	<string name="menu_dashboard" translatable="false">Dashboard</string>
 	<string name="menu_request">Request</string>
 	<string name="menu_configuration">Configuration</string>
 	<string name="delete_measurement">Delete measurement</string>
-	<string name="date_placeholder">24/01</string>
+	<string name="date_placeholder" translatable="false">24/01</string>
 	<string name="last_measurement_label">Last humidity measurement retrieved</string>
 	<string name="chart_label">Measurements chart</string>
 	<string name="dashboard_list_label">Latest retrieved data</string>

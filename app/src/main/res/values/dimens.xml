@@ -1,25 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<!-- space -->
 	<dimen name="default_margin">16dp</dimen>
 	<dimen name="small_margin">8dp</dimen>
 	<dimen name="medium_margin">24dp</dimen>
 	<dimen name="big_margin">32dp</dimen>
+	<dimen name="extra_big_margin">48dp</dimen>
 	<dimen name="screen_margin">24dp</dimen>
+	<dimen name="list_card_bottom_margin">12dp</dimen>
+	<dimen name="default_padding">16dp</dimen>
+	<dimen name="chart_height">250dp</dimen>
+	<dimen name="list_card_height">250dp</dimen>
 	<dimen name="map_height">200dp</dimen>
 	<dimen name="metamask_img">60dp</dimen>
 	<!-- text -->
 	<dimen name="label">14sp</dimen>
 	<dimen name="log">12sp</dimen>
-	<dimen name="wallet_state">16sp</dimen>
+	<dimen name="dashboard_humidity">15sp</dimen>
 	<dimen name="complete_row_title">18sp</dimen>
 	<dimen name="complete_row_timestamp">15sp</dimen>
 	<dimen name="complete_row_humidity">16sp</dimen>
-	<dimen name="list_card_bottom_margin">12dp</dimen>
 	<dimen name="location_title">22sp</dimen>
 	<dimen name="humidity_value">17sp</dimen>
-	<dimen name="default_padding">16dp</dimen>
-	<dimen name="dashboard_humidity">15sp</dimen>
-	<dimen name="chart_height">250dp</dimen>
-	<dimen name="extra_big_margin">48dp</dimen>
-	<dimen name="list_card_height">250dp</dimen>
+	<dimen name="wallet_state">16sp</dimen>
 </resources>
