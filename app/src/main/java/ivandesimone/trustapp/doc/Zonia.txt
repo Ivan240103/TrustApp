@@ -1,0 +1,54 @@
+Structured data interfaces:
+
+export interface InputRequest {
+    query: string;
+    chainParams: ChainParams;
+    ko: number;
+    ki: number;
+    fee: number;
+}
+
+export interface ChainParams {
+    w1: number;
+    w2: number;
+    w3: number;
+    w4: number;
+}
+
+wi sum must be 100 -> set each one to 25.
+Set ko and ki to 1, fee is not relevant.
+
+/** Query examples */
+/**
+* Query 1
+* {
+*   "topic": "s4agri:AmbientHumidity",
+*   "geo": {
+*     "type": "Feature",
+*     "geometry": {
+*       "type": "Point",
+*       "coordinates": [44.4948, 11.3426]
+*     },
+*     "properties": {
+*        // meters
+*       "radius": 500
+*     }
+*   }
+* }
+*
+* Query 2
+* {
+*   "topic": "saref:Temperature",
+*   "geo": {
+*     "type": "Feature",
+*     "geometry": {
+*       "type": "Point",
+*       "coordinates": [11.5820, 48.1351]
+*     },
+*     "properties": {
+*        // meters
+*       "radius": 1000
+*     }
+*   }
+* }
+*/
